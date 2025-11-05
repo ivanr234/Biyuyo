@@ -1,0 +1,11 @@
+# Ignorar carpetas que no deben subirse al build
+node_modules
+.git
+.gitignore
+.npm
+npm-debug.log
+yarn-error.log
+temp
+AppData
+C:/
+C:\Users\Ingen\AppData
