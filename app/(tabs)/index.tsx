@@ -48,6 +48,7 @@ export default function WelcomeScreen() {
   const slideAnim = useRef(new Animated.Value(50)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const floatAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     // Animación de entrada
@@ -73,7 +74,7 @@ export default function WelcomeScreen() {
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          toValue: 1.1,
+          toValue: 1.05,
           duration: 2000,
           useNativeDriver: true,
         }),
@@ -84,7 +85,28 @@ export default function WelcomeScreen() {
         }),
       ])
     ).start();
+
+    // Animación flotante
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: 1,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
   }, []);
+
+  const floatY = floatAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -10],
+  });
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -97,22 +119,11 @@ export default function WelcomeScreen() {
         bounces={false}
       >
         <View style={styles.container}>
-          {/* Círculos decorativos animados */}
-          <Animated.View 
-            style={[
-              styles.circle1,
-              { transform: [{ scale: pulseAnim }] }
-            ]} 
-          />
-          <Animated.View 
-            style={[
-              styles.circle2,
-              { transform: [{ scale: pulseAnim }] }
-            ]} 
-          />
-          <View style={styles.circle3} />
+          
+          
+          
 
-          {/* Logo Section */}
+          {/* Logo Section - DISEÑO ULTRA CREATIVO */}
           <Animated.View 
             style={[
               styles.logoSection,
@@ -122,30 +133,31 @@ export default function WelcomeScreen() {
               }
             ]}
           >
-            {/* Elementos decorativos superiores */}
-            <View style={styles.topShapesContainer}>
-              <View style={styles.topCircle1} />
-              <View style={styles.topCircle2} />
-              <View style={styles.topSquare} />
+            {/* Contenedor principal con forma hexagonal/diamante */}
+            <View style={styles.diamondContainer}>
+              {/* Capa de fondo blanca principal */}
+              <View style={styles.whiteBackground} />
             </View>
 
             {/* Logo con efecto flotante */}
-            <View style={styles.logoFloatingContainer}>
-              <View style={styles.logoShadowLayer} />
+            <Animated.View 
+              style={[
+                styles.logoFloatingContainer,
+                { transform: [{ translateY: floatY }] }
+              ]}
+            >
+              {/* Container principal del logo */}
               <View style={styles.logoMainContainer}>
+                <View style={styles.logoInnerGlow} />
                 <Image
                   source={require('@/assets/images/logo-biyuyo.png')}
                   style={styles.logo}
                   contentFit="contain"
                 />
               </View>
-            </View>
+            </Animated.View>
 
-            {/* Onda curva */}
-            <View style={styles.wavesContainer}>
-              <View style={styles.waveLayer1} />
-              <View style={styles.waveLayer2} />
-            </View>
+            
           </Animated.View>
 
           {/* Content Section */}
@@ -202,9 +214,9 @@ export default function WelcomeScreen() {
               <TouchableOpacity 
                 style={styles.primaryButton}
                 activeOpacity={0.85}
-                onPress={() => router.push("/register")}
+                onPress={() => router.push("/(tabs)/Credit/credit_study")}
               >
-                <Text style={styles.primaryButtonText}>Comenzar ahora</Text>
+                <Text style={styles.primaryButtonText}>Solicitar credito ahora</Text>
                 <Text style={styles.primaryButtonArrow}>→</Text>
               </TouchableOpacity>
 
@@ -249,7 +261,11 @@ const styles = StyleSheet.create({
     minHeight: height,
   },
 
-  // Elementos decorativos
+
+
+       
+
+  // Elementos decorativos del fondo
   circle1: {
     position: 'absolute',
     top: verticalScale(-60),
@@ -278,121 +294,214 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.05)',
   },
 
-  // Logo Section
+  // ===== LOGO SECTION CON DISEÑO ULTRA CREATIVO =====
   logoSection: {
-    backgroundColor: 'white',
+    backgroundColor: 'transparent',
     paddingTop: isShortDevice ? verticalScale(30) : verticalScale(40),
-    paddingBottom: verticalScale(35),
+    paddingBottom: verticalScale(40),
     alignItems: 'center',
     position: 'relative',
     overflow: 'visible',
   },
 
-  // Shapes decorativas superiores
-  topShapesContainer: {
+  // Contenedor con forma de diamante/hexágono
+  diamondContainer: {
     position: 'absolute',
-    top: verticalScale(10),
+    top: verticalScale(15),
+    left: scale(15),
+    right: scale(15),
+    height: verticalScale(240),
+    zIndex: 1,
+  },
+  
+  // Fondo blanco principal
+  whiteBackground: {
+    position: 'absolute',
+    top: verticalScale(20),
     left: 0,
     right: 0,
-    height: verticalScale(50),
-    overflow: 'hidden',
+    bottom: verticalScale(20),
+    backgroundColor: 'white',
+    borderRadius: moderateScale(45),
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 15,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 25,
+    elevation: 15,
   },
-  topCircle1: {
+  
+  // Círculos flotantes decorativos
+  floatingCircle1: {
     position: 'absolute',
-    top: verticalScale(-20),
+    top: verticalScale(50),
+    left: scale(25),
+    width: moderateScale(35),
+    height: moderateScale(35),
+    borderRadius: moderateScale(17.5),
+    backgroundColor: 'rgba(255, 215, 0, 0.15)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 215, 0, 0.3)',
+  },
+  floatingCircle2: {
+    position: 'absolute',
+    top: verticalScale(60),
     right: scale(30),
-    width: moderateScale(45),
-    height: moderateScale(45),
-    borderRadius: moderateScale(22.5),
-    backgroundColor: '#F0F4FF',
+    width: moderateScale(28),
+    height: moderateScale(28),
+    borderRadius: moderateScale(14),
+    backgroundColor: 'rgba(91, 127, 255, 0.12)',
+    borderWidth: 2,
+    borderColor: 'rgba(91, 127, 255, 0.25)',
   },
-  topCircle2: {
+  
+  // Cuadrados decorativos
+  floatingSquare1: {
     position: 'absolute',
-    top: verticalScale(5),
-    left: scale(20),
-    width: moderateScale(30),
-    height: moderateScale(30),
-    borderRadius: moderateScale(15),
-    backgroundColor: '#FFF9E6',
-  },
-  topSquare: {
-    position: 'absolute',
-    top: verticalScale(-5),
-    left: width * 0.7,
+    bottom: verticalScale(50),
+    left: scale(30),
     width: moderateScale(25),
     height: moderateScale(25),
-    borderRadius: moderateScale(5),
-    backgroundColor: '#F0F4FF',
+    backgroundColor: 'rgba(255, 215, 0, 0.18)',
+    borderRadius: moderateScale(8),
     transform: [{ rotate: '15deg' }],
+  },
+  floatingSquare2: {
+    position: 'absolute',
+    bottom: verticalScale(60),
+    right: scale(25),
+    width: moderateScale(30),
+    height: moderateScale(30),
+    backgroundColor: 'rgba(91, 127, 255, 0.1)',
+    borderRadius: moderateScale(8),
+    transform: [{ rotate: '-20deg' }],
+  },
+  
+  // Líneas decorativas diagonales
+  decorativeLine1: {
+    position: 'absolute',
+    top: verticalScale(80),
+    left: scale(15),
+    width: scale(50),
+    height: 3,
+    backgroundColor: 'rgba(255, 215, 0, 0.2)',
+    borderRadius: 2,
+    transform: [{ rotate: '-45deg' }],
+  },
+  decorativeLine2: {
+    position: 'absolute',
+    top: verticalScale(90),
+    right: scale(15),
+    width: scale(45),
+    height: 2,
+    backgroundColor: 'rgba(91, 127, 255, 0.2)',
+    borderRadius: 2,
+    transform: [{ rotate: '45deg' }],
+  },
+  decorativeLine3: {
+    position: 'absolute',
+    bottom: verticalScale(100),
+    left: scale(50),
+    width: scale(40),
+    height: 2,
+    backgroundColor: 'rgba(255, 215, 0, 0.25)',
+    borderRadius: 2,
+    transform: [{ rotate: '30deg' }],
   },
 
   // Logo con efecto flotante
   logoFloatingContainer: {
-    marginTop: isShortDevice ? verticalScale(25) : verticalScale(30),
-    marginBottom: verticalScale(12),
+    marginTop: isShortDevice ? verticalScale(40) : verticalScale(50),
+    marginBottom: verticalScale(18),
     position: 'relative',
     zIndex: 10,
   },
-  logoShadowLayer: {
-    position: 'absolute',
-    bottom: verticalScale(-5),
-    left: scale(6),
-    right: scale(6),
-    height: verticalScale(14),
-    backgroundColor: 'rgba(91, 127, 255, 0.08)',
-    borderRadius: moderateScale(70),
-    transform: [{ scaleX: 0.9 }],
-  },
+  
+  // Container principal del logo
   logoMainContainer: {
     backgroundColor: 'white',
-    paddingHorizontal: scale(22),
-    paddingVertical: verticalScale(14),
-    borderRadius: moderateScale(18),
+    paddingHorizontal: scale(32),
+    paddingVertical: verticalScale(22),
+    borderRadius: moderateScale(28),
     shadowColor: '#5B7FFF',
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 12,
     },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(91, 127, 255, 0.08)',
+    shadowOpacity: 0.25,
+    shadowRadius: 25,
+    elevation: 18,
+    position: 'relative',
+    overflow: 'hidden',
   },
+  
+  // Brillo interno
+  logoInnerGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+    backgroundColor: 'rgba(255, 215, 0, 0.05)',
+    borderTopLeftRadius: moderateScale(25),
+    borderTopRightRadius: moderateScale(25),
+  },
+  
   logo: {
-    width: isSmallDevice ? scale(140) : scale(160),
-    height: isSmallDevice ? verticalScale(46) : verticalScale(52),
-    maxWidth: 180,
-    maxHeight: 60,
+    width: isSmallDevice ? scale(150) : scale(170),
+    height: isSmallDevice ? verticalScale(50) : verticalScale(57),
+    maxWidth: 190,
+    maxHeight: 67,
   },
 
-  // Ondas
-  wavesContainer: {
+  // Elementos decorativos inferiores
+  bottomDecorativeElements: {
     position: 'absolute',
-    bottom: verticalScale(-35),
-    left: scale(-40),
-    right: scale(-40),
-    height: verticalScale(90),
-  },
-  waveLayer1: {
-    position: 'absolute',
-    bottom: verticalScale(6),
+    bottom: verticalScale(30),
     left: 0,
-    width: width + scale(80),
-    height: verticalScale(70),
-    backgroundColor: 'white',
-    borderBottomLeftRadius: width * 1.8,
-    borderBottomRightRadius: width * 1.8,
+    right: 0,
+    height: verticalScale(40),
+    zIndex: 5,
   },
-  waveLayer2: {
+  bottomTriangle1: {
     position: 'absolute',
     bottom: 0,
-    left: 0,
-    width: width + scale(80),
-    height: verticalScale(70),
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    borderBottomLeftRadius: width * 1.5,
-    borderBottomRightRadius: width * 1.5,
+    left: scale(40),
+    width: 0,
+    height: 0,
+    borderLeftWidth: moderateScale(15),
+    borderRightWidth: moderateScale(15),
+    borderBottomWidth: moderateScale(25),
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: 'rgba(255, 215, 0, 0.2)',
+  },
+  bottomTriangle2: {
+    position: 'absolute',
+    bottom: verticalScale(5),
+    right: scale(50),
+    width: 0,
+    height: 0,
+    borderLeftWidth: moderateScale(12),
+    borderRightWidth: moderateScale(12),
+    borderBottomWidth: moderateScale(20),
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: 'rgba(91, 127, 255, 0.15)',
+    transform: [{ rotate: '180deg' }],
+  },
+  bottomCircle: {
+    position: 'absolute',
+    bottom: verticalScale(8),
+    left: width * 0.5 - moderateScale(10),
+    width: moderateScale(20),
+    height: moderateScale(20),
+    borderRadius: moderateScale(10),
+    backgroundColor: 'rgba(255, 215, 0, 0.25)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 215, 0, 0.4)',
   },
 
   // Content Section

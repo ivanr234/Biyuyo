@@ -1,29 +1,51 @@
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-    Animated,
-    Dimensions,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Animated,
+  Dimensions,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
+type FormStep = 'personal' | 'contact' | 'work' | 'bank';
+
 export default function RegisterScreen() {
   const router = useRouter();
+  const [currentStep, setCurrentStep] = useState<FormStep>('personal');
+  
+  // Datos personales
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
-  const [telefono, setTelefono] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  
+  // Información de contacto
+  const [telefono, setTelefono] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [ciudad, setCiudad] = useState("");
+  const [departamento, setDepartamento] = useState("");
+  
+  // Información laboral
+  const [empresa, setEmpresa] = useState("");
+  const [cargo, setCargo] = useState("");
+  const [tiempoEmpleo, setTiempoEmpleo] = useState("");
+  const [ingresoMensual, setIngresoMensual] = useState("");
+  
+  // Información bancaria
+  const [banco, setBanco] = useState("");
+  const [tipoCuenta, setTipoCuenta] = useState("");
+  const [numeroCuenta, setNumeroCuenta] = useState("");
+  
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -47,7 +69,6 @@ export default function RegisterScreen() {
       }),
     ]).start();
 
-    // Pulso continuo
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
@@ -64,10 +85,77 @@ export default function RegisterScreen() {
     ).start();
   }, []);
 
+  // Resetear animación al cambiar de paso
+  useEffect(() => {
+    fadeAnim.setValue(0);
+    slideAnim.setValue(50);
+    
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        tension: 50,
+        friction: 7,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [currentStep]);
+
+  const handleNext = () => {
+    if (currentStep === 'personal') setCurrentStep('contact');
+    else if (currentStep === 'contact') setCurrentStep('work');
+    else if (currentStep === 'work') setCurrentStep('bank');
+    else handleRegister();
+  };
+
+  const handleBack = () => {
+    if (currentStep === 'contact') setCurrentStep('personal');
+    else if (currentStep === 'work') setCurrentStep('contact');
+    else if (currentStep === 'bank') setCurrentStep('work');
+  };
+
   const handleRegister = () => {
-    // Aquí va la lógica de registro
-    console.log("Registro:", { nombre, email, telefono, password });
-    // router.push('/dashboard'); // Después del registro exitoso
+    console.log("Registro completo:", {
+      personal: { nombre, email, password },
+      contacto: { telefono, direccion, ciudad, departamento },
+      laboral: { empresa, cargo, tiempoEmpleo, ingresoMensual },
+      bancaria: { banco, tipoCuenta, numeroCuenta }
+    });
+    // router.push('/dashboard');
+  };
+
+  const getStepNumber = () => {
+    switch(currentStep) {
+      case 'personal': return 1;
+      case 'contact': return 2;
+      case 'work': return 3;
+      case 'bank': return 4;
+      default: return 1;
+    }
+  };
+
+  const getStepTitle = () => {
+    switch(currentStep) {
+      case 'personal': return 'Datos Personales';
+      case 'contact': return 'Información de Contacto';
+      case 'work': return 'Información Laboral';
+      case 'bank': return 'Información Bancaria';
+      default: return '';
+    }
+  };
+
+  const getStepSubtitle = () => {
+    switch(currentStep) {
+      case 'personal': return 'Crea tu cuenta con tu información básica';
+      case 'contact': return 'Dónde podemos contactarte';
+      case 'work': return 'Cuéntanos sobre tu empleo actual';
+      case 'bank': return 'Para procesar tu crédito';
+      default: return '';
+    }
   };
 
   return (
@@ -89,7 +177,7 @@ export default function RegisterScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
+          {/* Header con Logo */}
           <Animated.View 
             style={[
               styles.logoContainer,
@@ -103,9 +191,35 @@ export default function RegisterScreen() {
               <Image
                 source={require('../../../assets/images/logo-biyuyo.png')}
                 style={styles.logo}
-                contentFit="contain"
+                resizeMode="contain"
               />
             </View>
+          </Animated.View>
+
+          {/* Indicador de progreso */}
+          <Animated.View 
+            style={[
+              styles.progressContainer,
+              { opacity: fadeAnim }
+            ]}
+          >
+            <View style={styles.stepsIndicator}>
+              {[1, 2, 3, 4].map((step) => (
+                <View key={step} style={styles.stepDot}>
+                  <View style={[
+                    styles.stepDotInner,
+                    getStepNumber() >= step && styles.stepDotActive
+                  ]} />
+                  {step < 4 && (
+                    <View style={[
+                      styles.stepLine,
+                      getStepNumber() > step && styles.stepLineActive
+                    ]} />
+                  )}
+                </View>
+              ))}
+            </View>
+            <Text style={styles.progressText}>Paso {getStepNumber()} de 4</Text>
           </Animated.View>
 
           {/* Título */}
@@ -118,10 +232,8 @@ export default function RegisterScreen() {
               },
             ]}
           >
-            <Text style={styles.title}>Crear cuenta</Text>
-            <Text style={styles.subtitle}>
-              Regístrate y obtén tu crédito en minutos
-            </Text>
+            <Text style={styles.title}>{getStepTitle()}</Text>
+            <Text style={styles.subtitle}>{getStepSubtitle()}</Text>
           </Animated.View>
 
           {/* Formulario */}
@@ -134,151 +246,313 @@ export default function RegisterScreen() {
               },
             ]}
           >
-            {/* Campo Nombre */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Nombre completo</Text>
-              <View style={styles.inputWrapper}>
-                <Text style={styles.inputIcon}>👤</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Juan Pérez"
-                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                  value={nombre}
-                  onChangeText={setNombre}
-                  autoCapitalize="words"
-                />
-              </View>
-            </View>
+            {/* PASO 1: Datos Personales */}
+            {currentStep === 'personal' && (
+              <>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Nombre completo</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>👤</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Juan Pérez González"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={nombre}
+                      onChangeText={setNombre}
+                      autoCapitalize="words"
+                    />
+                  </View>
+                </View>
 
-            {/* Campo Email */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Correo electrónico</Text>
-              <View style={styles.inputWrapper}>
-                <Text style={styles.inputIcon}>✉️</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="correo@ejemplo.com"
-                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-              </View>
-            </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Correo electrónico</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>✉️</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="correo@ejemplo.com"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={email}
+                      onChangeText={setEmail}
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                    />
+                  </View>
+                </View>
 
-            {/* Campo Teléfono */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Teléfono</Text>
-              <View style={styles.inputWrapper}>
-                <Text style={styles.inputIcon}>📱</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="+57 300 123 4567"
-                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                  value={telefono}
-                  onChangeText={setTelefono}
-                  keyboardType="phone-pad"
-                />
-              </View>
-            </View>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Contraseña</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>🔒</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Mínimo 8 caracteres"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={password}
+                      onChangeText={setPassword}
+                      secureTextEntry={!showPassword}
+                      autoCapitalize="none"
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword(!showPassword)}
+                      style={styles.eyeButton}
+                    >
+                      <Text style={styles.eyeIcon}>
+                        {showPassword ? "👁️" : "👁️‍🗨️"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
 
-            {/* Campo Contraseña */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Contraseña</Text>
-              <View style={styles.inputWrapper}>
-                <Text style={styles.inputIcon}>🔒</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Mínimo 8 caracteres"
-                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                />
-                <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
-                  style={styles.eyeButton}
-                >
-                  <Text style={styles.eyeIcon}>
-                    {showPassword ? "👁️" : "👁️‍🗨️"}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Confirmar contraseña</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>🔒</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Repite tu contraseña"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={confirmPassword}
+                      onChangeText={setConfirmPassword}
+                      secureTextEntry={!showConfirmPassword}
+                      autoCapitalize="none"
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                      style={styles.eyeButton}
+                    >
+                      <Text style={styles.eyeIcon}>
+                        {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </>
+            )}
+
+            {/* PASO 2: Información de Contacto */}
+            {currentStep === 'contact' && (
+              <>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Teléfono celular</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>📱</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="+57 300 123 4567"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={telefono}
+                      onChangeText={setTelefono}
+                      keyboardType="phone-pad"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Dirección de residencia</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>🏠</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Calle 123 #45-67"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={direccion}
+                      onChangeText={setDireccion}
+                      autoCapitalize="words"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Ciudad</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>🏙️</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Ej: Bogotá"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={ciudad}
+                      onChangeText={setCiudad}
+                      autoCapitalize="words"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Departamento</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>📍</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Ej: Cundinamarca"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={departamento}
+                      onChangeText={setDepartamento}
+                      autoCapitalize="words"
+                    />
+                  </View>
+                </View>
+              </>
+            )}
+
+            {/* PASO 3: Información Laboral */}
+            {currentStep === 'work' && (
+              <>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Empresa donde trabajas</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>🏢</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Nombre de la empresa"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={empresa}
+                      onChangeText={setEmpresa}
+                      autoCapitalize="words"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Cargo o posición</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>💼</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Ej: Analista, Gerente, etc."
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={cargo}
+                      onChangeText={setCargo}
+                      autoCapitalize="words"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Tiempo en el empleo</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>📅</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Ej: 2 años, 6 meses"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={tiempoEmpleo}
+                      onChangeText={setTiempoEmpleo}
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Ingreso mensual</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>💰</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Ej: $2,500,000"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={ingresoMensual}
+                      onChangeText={setIngresoMensual}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                </View>
+              </>
+            )}
+
+            {/* PASO 4: Información Bancaria */}
+            {currentStep === 'bank' && (
+              <>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Banco</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>🏦</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Ej: Bancolombia, Davivienda"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={banco}
+                      onChangeText={setBanco}
+                      autoCapitalize="words"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Tipo de cuenta</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>💳</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Ahorros o Corriente"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={tipoCuenta}
+                      onChangeText={setTipoCuenta}
+                      autoCapitalize="words"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Número de cuenta</Text>
+                  <View style={styles.inputWrapper}>
+                    <Text style={styles.inputIcon}>🔢</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="1234567890"
+                      placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                      value={numeroCuenta}
+                      onChangeText={setNumeroCuenta}
+                      keyboardType="numeric"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.termsContainer}>
+                  <Text style={styles.termsText}>
+                    Al registrarte, aceptas nuestros{" "}
+                    <Text style={styles.termsLink}>Términos y Condiciones</Text> y{" "}
+                    <Text style={styles.termsLink}>Política de Privacidad</Text>
                   </Text>
+                </View>
+              </>
+            )}
+
+            {/* Botones de navegación */}
+            <View style={styles.buttonContainer}>
+              {currentStep !== 'personal' && (
+                <TouchableOpacity
+                  style={styles.backButtonForm}
+                  activeOpacity={0.85}
+                  onPress={handleBack}
+                >
+                  <Text style={styles.backButtonText}>← Atrás</Text>
+                </TouchableOpacity>
+              )}
+              
+              <TouchableOpacity
+                style={[
+                  styles.nextButton,
+                  currentStep === 'personal' && styles.nextButtonFull
+                ]}
+                activeOpacity={0.85}
+                onPress={handleNext}
+              >
+                <Text style={styles.nextButtonText}>
+                  {currentStep === 'bank' ? 'Crear cuenta' : 'Siguiente'}
+                </Text>
+                <Text style={styles.nextButtonArrow}>→</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Login link solo en primer paso */}
+            {currentStep === 'personal' && (
+              <View style={styles.loginLinkContainer}>
+                <Text style={styles.loginLinkText}>¿Ya tienes cuenta? </Text>
+                <TouchableOpacity onPress={() => router.push("/login")}>
+                  <Text style={styles.loginLink}>Inicia sesión</Text>
                 </TouchableOpacity>
               </View>
-            </View>
-
-            {/* Campo Confirmar Contraseña */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Confirmar contraseña</Text>
-              <View style={styles.inputWrapper}>
-                <Text style={styles.inputIcon}>🔒</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Repite tu contraseña"
-                  placeholderTextColor="rgba(255, 255, 255, 0.5)"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  secureTextEntry={!showConfirmPassword}
-                  autoCapitalize="none"
-                />
-                <TouchableOpacity
-                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                  style={styles.eyeButton}
-                >
-                  <Text style={styles.eyeIcon}>
-                    {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Términos y condiciones */}
-            <View style={styles.termsContainer}>
-              <Text style={styles.termsText}>
-                Al registrarte, aceptas nuestros{" "}
-                <Text style={styles.termsLink}>Términos y Condiciones</Text> y{" "}
-                <Text style={styles.termsLink}>Política de Privacidad</Text>
-              </Text>
-            </View>
-
-            {/* Botón de registro */}
-            <TouchableOpacity
-              style={styles.registerButton}
-              activeOpacity={0.85}
-              onPress={handleRegister}
-            >
-              <Text style={styles.registerButtonText}>Crear mi cuenta</Text>
-              <Text style={styles.registerButtonArrow}>→</Text>
-            </TouchableOpacity>
-
-            {/* Divider */}
-            <View style={styles.dividerContainer}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>o regístrate con</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            {/* Botones sociales */}
-            <View style={styles.socialButtons}>
-              <TouchableOpacity style={styles.socialButton}>
-                <Text style={styles.socialIcon}>G</Text>
-                <Text style={styles.socialText}>Google</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.socialButton}>
-                <Text style={styles.socialIcon}>f</Text>
-                <Text style={styles.socialText}>Facebook</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Login link */}
-            <View style={styles.loginLinkContainer}>
-              <Text style={styles.loginLinkText}>¿Ya tienes cuenta? </Text>
-              <TouchableOpacity onPress={() => router.push("/login")}>
-                <Text style={styles.loginLink}>Inicia sesión</Text>
-              </TouchableOpacity>
-            </View>
+            )}
           </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -327,41 +601,10 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.08)",
   },
 
-  // Header
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === "ios" ? 50 : 30,
-    marginBottom: 30,
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  backArrow: {
-    fontSize: 24,
-    color: "white",
-    fontWeight: "bold",
-  },
-  logoSmall: {
-    backgroundColor: "white",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 12,
-  },
-  logoImage: {
-    width: 80,
-    height: 26,
-  },
+  // Logo
   logoContainer: {
     alignItems: "center",
-    marginBottom: 30,
+    marginBottom: 20,
     marginTop: 50
   },
   logoCard: {
@@ -383,19 +626,62 @@ const styles = StyleSheet.create({
     height: 46,
   },
 
+  // Progreso
+  progressContainer: {
+    paddingHorizontal: 28,
+    marginBottom: 20,
+  },
+  stepsIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  stepDot: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  stepDotInner: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  stepDotActive: {
+    backgroundColor: '#FFD700',
+    borderColor: '#FFD700',
+  },
+  stepLine: {
+    width: 40,
+    height: 2,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    marginHorizontal: 4,
+  },
+  stepLineActive: {
+    backgroundColor: '#FFD700',
+  },
+  progressText: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.8)',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+
   // Título
   titleContainer: {
     paddingHorizontal: 28,
-    marginBottom: 30,
+    marginBottom: 24,
   },
   title: {
-    fontSize: 36,
+    fontSize: 28,
     fontWeight: "bold",
     color: "white",
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 15,
     color: "rgba(255, 255, 255, 0.8)",
     lineHeight: 22,
   },
@@ -405,7 +691,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: 18,
   },
   label: {
     fontSize: 14,
@@ -458,8 +744,30 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
 
-  // Botón de registro
-  registerButton: {
+  // Botones de navegación
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 20,
+  },
+  backButtonForm: {
+    flex: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 18,
+    borderRadius: 28,
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+  },
+  backButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  nextButton: {
+    flex: 1,
     backgroundColor: "#FFD700",
     flexDirection: "row",
     alignItems: "center",
@@ -474,65 +782,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 10,
     elevation: 10,
-    marginBottom: 24,
   },
-  registerButtonText: {
+  nextButtonFull: {
+    flex: 1,
+  },
+  nextButtonText: {
     color: "#1a1a1a",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     marginRight: 8,
   },
-  registerButtonArrow: {
+  nextButtonArrow: {
     color: "#1a1a1a",
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
-  },
-
-  // Divider
-  dividerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 24,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-  },
-  dividerText: {
-    color: "rgba(255, 255, 255, 0.7)",
-    fontSize: 13,
-    paddingHorizontal: 12,
-    fontWeight: "500",
-  },
-
-  // Botones sociales
-  socialButtons: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 24,
-  },
-  socialButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    paddingVertical: 14,
-    borderRadius: 16,
-    borderWidth: 2,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-  },
-  socialIcon: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
-    marginRight: 8,
-  },
-  socialText: {
-    color: "white",
-    fontSize: 15,
-    fontWeight: "600",
   },
 
   // Link de login
@@ -540,6 +803,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 4,
   },
   loginLinkText: {
     color: "rgba(255, 255, 255, 0.8)",
@@ -550,14 +814,4 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "bold",
   },
-  logoPlaceholder: {
-  paddingHorizontal: 20,
-  paddingVertical: 8,
-},
-logoPlaceholderText: {
-  fontSize: 24,
-  fontWeight: 'bold',
-  color: '#5B7FFF',
-  letterSpacing: -0.5,
-},
 });
