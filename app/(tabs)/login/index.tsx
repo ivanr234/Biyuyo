@@ -1,5 +1,4 @@
 import { useRouter } from "expo-router";
-
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -15,8 +14,33 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Svg, { Path } from 'react-native-svg';
+// Importar iconos de Iconsax
+import {
+  Eye,
+  EyeSlash,
+  Facebook,
+  Google,
+  Lock,
+  Sms,
+  TickSquare
+} from 'iconsax-react-native';
 
 const { width, height } = Dimensions.get("window");
+
+// Funciones de escala
+const scale = (size: number) => (width / 375) * size;
+const scaleFont = (size: number) => {
+  const newSize = (width / 375) * size;
+  if (Platform.OS === 'ios') {
+    return Math.round(newSize);
+  }
+  return Math.round(newSize) - 1;
+};
+const verticalScale = (size: number) => (height / 812) * size;
+const moderateScale = (size: number, factor = 0.5) => {
+  return size + (scale(size) - size) * factor;
+};
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -29,6 +53,7 @@ export default function LoginScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const floatAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -60,16 +85,36 @@ export default function LoginScreen() {
         }),
       ])
     ).start();
+
+    // Animación flotante
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: 1,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
   }, []);
+
+  const floatY = floatAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -10],
+  });
 
   const handleLogin = () => {
     // Validación simple
     if (email === "usuario@biyuyo.com" && password === "biyuyo123") {
       console.log("Login exitoso:", { email, password, rememberMe });
-      router.push('/(tabs)/dashboard'); // Redirige al dashboard
+      router.push('/(tabs)/dashboard');
     } else {
       console.log("Credenciales incorrectas");
-      // Aquí podrías mostrar un mensaje de error
     }
   };
 
@@ -92,41 +137,54 @@ export default function LoginScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
+          {/* Logo con contenedor de arco - DE BORDE A BORDE */}
           <Animated.View
             style={[
-              styles.header,
+              styles.logoSection,
               {
                 opacity: fadeAnim,
-                transform: [{ translateY: slideAnim }],
+                transform: [{ translateY: slideAnim }]
               },
             ]}
           >
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => router.back()}
-            >
-              <Text style={styles.backArrow}>←</Text>
-            </TouchableOpacity>
-          </Animated.View>
-
-          {/* Logo grande */}
-          <Animated.View
-            style={[
-              styles.logoContainer,
-              {
-                opacity: fadeAnim,
-                transform: [{ scale: pulseAnim }],
-              },
-            ]}
-          >
-            <View style={styles.logoCard}>
-              <Image 
-                source={require('../../../assets/images/logo-biyuyo.png')}
-                style={styles.logo}
-                resizeMode="contain"
-              />
+            {/* Contenedor con forma de arco en la parte inferior usando SVG */}
+            <View style={styles.arcContainer}>
+              <Svg
+                height={verticalScale(240)}
+                width={width}
+                style={styles.arcSvg}
+              >
+                <Path
+                  d={`
+                    M 0 0
+                    L ${width} 0
+                    L ${width} ${verticalScale(170)}
+                    Q ${width / 2} ${verticalScale(240)}, 0 ${verticalScale(170)}
+                    Z
+                  `}
+                  fill="white"
+                />
+              </Svg>
+              
+              {/* Sombra decorativa */}
+              
             </View>
+
+            {/* Logo con efecto flotante */}
+            <Animated.View 
+              style={[
+                styles.logoFloatingContainer,
+                { transform: [{ translateY: floatY }] }
+              ]}
+            >
+              <View style={styles.logoMainContainer}>
+                <Image 
+                  source={require('../../../assets/images/logo-biyuyo.png')}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
+              </View>
+            </Animated.View>
           </Animated.View>
 
           {/* Título */}
@@ -157,7 +215,7 @@ export default function LoginScreen() {
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Correo electrónico</Text>
               <View style={styles.inputWrapper}>
-                <Text style={styles.inputIcon}>✉️</Text>
+                <Sms size={20} color="rgba(255, 255, 255, 0.7)" variant="Bold" />
                 <TextInput
                   style={styles.input}
                   placeholder="correo@ejemplo.com"
@@ -174,7 +232,7 @@ export default function LoginScreen() {
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Contraseña</Text>
               <View style={styles.inputWrapper}>
-                <Text style={styles.inputIcon}>🔒</Text>
+                <Lock size={20} color="rgba(255, 255, 255, 0.7)" variant="Bold" />
                 <TextInput
                   style={styles.input}
                   placeholder="Tu contraseña"
@@ -188,9 +246,11 @@ export default function LoginScreen() {
                   onPress={() => setShowPassword(!showPassword)}
                   style={styles.eyeButton}
                 >
-                  <Text style={styles.eyeIcon}>
-                    {showPassword ? "👁️" : "👁️‍🗨️"}
-                  </Text>
+                  {showPassword ? (
+                    <Eye size={20} color="rgba(255, 255, 255, 0.7)" variant="Bold" />
+                  ) : (
+                    <EyeSlash size={20} color="rgba(255, 255, 255, 0.7)" variant="Bold" />
+                  )}
                 </TouchableOpacity>
               </View>
             </View>
@@ -207,7 +267,9 @@ export default function LoginScreen() {
                     rememberMe && styles.checkboxChecked,
                   ]}
                 >
-                  {rememberMe && <Text style={styles.checkmark}>✓</Text>}
+                  {rememberMe && (
+                    <TickSquare size={22} color="white" variant="Bold" />
+                  )}
                 </View>
                 <Text style={styles.rememberMeText}>Recordarme</Text>
               </TouchableOpacity>
@@ -226,7 +288,7 @@ export default function LoginScreen() {
               onPress={handleLogin}
             >
               <Text style={styles.loginButtonText}>Iniciar sesión</Text>
-              <Text style={styles.loginButtonArrow}>→</Text>
+              
             </TouchableOpacity>
 
             {/* Divider */}
@@ -239,12 +301,12 @@ export default function LoginScreen() {
             {/* Botones sociales */}
             <View style={styles.socialButtons}>
               <TouchableOpacity style={styles.socialButton}>
-                <Text style={styles.socialIcon}>G</Text>
+                <Google size={20} color="white" variant="Bold" />
                 <Text style={styles.socialText}>Google</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.socialButton}>
-                <Text style={styles.socialIcon}>f</Text>
+                <Facebook size={20} color="white" variant="Bold" />
                 <Text style={styles.socialText}>Facebook</Text>
               </TouchableOpacity>
             </View>
@@ -304,57 +366,66 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.08)",
   },
 
-  // Header
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: Platform.OS === "ios" ? 50 : 30,
+  // ===== LOGO SECTION CON ARCO DE BORDE A BORDE =====
+  logoSection: {
+    backgroundColor: 'transparent',
+    paddingTop: Platform.OS === "ios" ? verticalScale(10) : verticalScale(30),
+    paddingBottom: verticalScale(20),
+    alignItems: 'center',
+    position: 'relative',
+    overflow: 'visible',
+    minHeight: verticalScale(240),
     marginBottom: 20,
-  },
-  backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  backArrow: {
-    fontSize: 24,
-    color: "white",
-    fontWeight: "bold",
+
   },
 
+  // Contenedor del arco - DE BORDE A BORDE
+  arcContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: verticalScale(240),
+    zIndex: 1,
+    overflow: 'visible',
+  },
+
+  // SVG del arco
+  arcSvg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+
+  // Sombra del arco en la parte inferior
+  
+
+  // Logo con efecto flotante
+  logoFloatingContainer: {
+    marginTop: verticalScale(60),
+    marginBottom: verticalScale(18),
+    position: 'relative',
+    zIndex: 10,
+  },
+  
+  // Container principal del logo - SIN BORDES, SOLO TRANSPARENTE
+  logoMainContainer: {
+    backgroundColor: 'transparent',
+    paddingHorizontal: scale(32),
+    paddingVertical: verticalScale(15),
+    position: 'relative',
+  },
+  
   // Logo
-  logoContainer: {
-    alignItems: "center",
-    marginTop: 20,
-    marginBottom: 40,
-  },
-  logoCard: {
-    backgroundColor: "white",
-    paddingHorizontal: 30,
-    paddingVertical: 20,
-    borderRadius: 24,
-    shadowColor: "#5B7FFF",
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 16,
-    elevation: 10,
-  },
   logo: {
-    width: 140,
-    height: 46,
+    width: scale(200),
+    height: verticalScale(70),
   },
 
   // Título
   titleContainer: {
     paddingHorizontal: 28,
-    marginBottom: 40,
+    marginBottom: 30,
   },
   title: {
     fontSize: 40,
@@ -391,10 +462,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderWidth: 2,
     borderColor: "rgba(255, 255, 255, 0.1)",
-  },
-  inputIcon: {
-    fontSize: 20,
-    marginRight: 12,
+    gap: 12,
   },
   input: {
     flex: 1,
@@ -405,9 +473,6 @@ const styles = StyleSheet.create({
   },
   eyeButton: {
     padding: 8,
-  },
-  eyeIcon: {
-    fontSize: 20,
   },
 
   // Opciones
@@ -430,16 +495,14 @@ const styles = StyleSheet.create({
     marginRight: 8,
     justifyContent: "center",
     alignItems: "center",
+    overflow: 'hidden',
   },
   checkboxChecked: {
     backgroundColor: "#FFD700",
     borderColor: "#FFD700",
+    
   },
-  checkmark: {
-    color: "#1a1a1a",
-    fontSize: 14,
-    fontWeight: "bold",
-  },
+
   rememberMeText: {
     color: "white",
     fontSize: 14,
@@ -468,17 +531,12 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 10,
     marginBottom: 28,
+    gap: 8,
   },
   loginButtonText: {
     color: "#1a1a1a",
     fontSize: 18,
     fontWeight: "700",
-    marginRight: 8,
-  },
-  loginButtonArrow: {
-    color: "#1a1a1a",
-    fontSize: 20,
-    fontWeight: "bold",
   },
 
   // Divider
@@ -515,12 +573,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 2,
     borderColor: "rgba(255, 255, 255, 0.1)",
-  },
-  socialIcon: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
-    marginRight: 8,
+    gap: 8,
   },
   socialText: {
     color: "white",
@@ -542,12 +595,5 @@ const styles = StyleSheet.create({
     color: "#FFD700",
     fontSize: 15,
     fontWeight: "bold",
-  },
-
-  logoPlaceholderText: {
-    fontSize: 36,
-    fontWeight: "bold",
-    color: "#5B7FFF",
-    letterSpacing: -1,
   },
 });

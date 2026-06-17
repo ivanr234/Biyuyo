@@ -1,16 +1,17 @@
+import FloatingBottomMenu from "@/components/Floatingbottommenu";
 import Slider from '@react-native-community/slider';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-    Dimensions,
-    Image,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  Image,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -290,7 +291,15 @@ export default function CreditStudyScreen() {
             Al continuar aceptas nuestros términos y condiciones
           </Text>
         </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Biyuyo © 2025</Text>
+          <Text style={styles.footerSubtext}>Desarrollado por Ingenio Soluciones Ti</Text>
+          <Text style={styles.footerSubtext}>Tu aliado financiero de confianza</Text>
+        </View>
       </ScrollView>
+      <FloatingBottomMenu />
     </View>
   );
 }
@@ -367,7 +376,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: verticalScale(30),
+    paddingBottom: verticalScale(120),
   },
 
   // Amount Section
@@ -709,5 +718,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: verticalScale(12),
     lineHeight: scaleFont(16),
+  },
+
+  // Footer
+  footer: {
+    alignItems: "center",
+    paddingVertical: verticalScale(24),
+    paddingTop: verticalScale(30),
+  },
+  footerText: {
+    fontSize: scaleFont(12),
+    color: "#999",
+    fontWeight: "600",
+    marginBottom: verticalScale(3),
+  },
+  footerSubtext: {
+    fontSize: scaleFont(11),
+    color: "#bbb",
   },
 });

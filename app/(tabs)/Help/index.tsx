@@ -1,19 +1,40 @@
+import FloatingBottomMenu from "@/components/Floatingbottommenu";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    Alert,
-    Dimensions,
-    Image,
-    Linking,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Dimensions,
+  Image,
+  Linking,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+// Importar iconos de Iconsax
+import {
+  ArrowLeft,
+  ArrowRight2,
+  Call,
+  Card,
+  Clock,
+  CloseCircle,
+  DocumentText1,
+  InfoCircle,
+  Lock,
+  MessageQuestion,
+  Messages2,
+  MoneyRecive,
+  Profile,
+  SearchNormal1,
+  ShieldTick,
+  Sms,
+  Teacher
+} from 'iconsax-react-native';
 
 const { width, height } = Dimensions.get("window");
 
@@ -113,13 +134,13 @@ export default function HelpScreen() {
     },
   ];
 
-  // Categorías
+  // Categorías con iconos de Iconsax
   const categorias = [
-    { id: "todas", nombre: "Todas", icon: "📋" },
-    { id: "credito", nombre: "Créditos", icon: "💰" },
-    { id: "pagos", nombre: "Pagos", icon: "💳" },
-    { id: "cuenta", nombre: "Cuenta", icon: "👤" },
-    { id: "seguridad", nombre: "Seguridad", icon: "🔒" },
+    { id: "todas", nombre: "Todas", IconComponent: DocumentText1, color: "#5B7FFF" },
+    { id: "credito", nombre: "Créditos", IconComponent: MoneyRecive, color: "#4CAF50" },
+    { id: "pagos", nombre: "Pagos", IconComponent: Card, color: "#FF9800" },
+    { id: "cuenta", nombre: "Cuenta", IconComponent: Profile, color: "#2196F3" },
+    { id: "seguridad", nombre: "Seguridad", IconComponent: Lock, color: "#E91E63" },
   ];
 
   // Filtrar FAQs
@@ -169,7 +190,7 @@ export default function HelpScreen() {
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <Text style={styles.backIcon}>←</Text>
+          <ArrowLeft size={24} color="#5B7FFF" variant="Bold" />
         </TouchableOpacity>
         
         <View style={styles.headerCenter}>
@@ -196,7 +217,9 @@ export default function HelpScreen() {
         {/* Hero Card */}
         <View style={styles.heroCard}>
           <View style={styles.heroContent}>
-            <Text style={styles.heroIcon}>💬</Text>
+            <View style={styles.heroIconContainer}>
+              <MessageQuestion size={48} color="white" variant="Bold" />
+            </View>
             <Text style={styles.heroTitle}>¿Cómo podemos ayudarte?</Text>
             <Text style={styles.heroSubtitle}>
               Encuentra respuestas rápidas o contáctanos directamente
@@ -207,7 +230,7 @@ export default function HelpScreen() {
         {/* Búsqueda */}
         <View style={styles.searchContainer}>
           <View style={styles.searchInputWrapper}>
-            <Text style={styles.searchIcon}>🔍</Text>
+            <SearchNormal1 size={20} color="#999" variant="Bold" />
             <TextInput
               style={styles.searchInput}
               value={searchQuery}
@@ -217,7 +240,7 @@ export default function HelpScreen() {
             />
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery("")}>
-                <Text style={styles.clearIcon}>✕</Text>
+                <CloseCircle size={20} color="#999" variant="Bold" />
               </TouchableOpacity>
             )}
           </View>
@@ -234,7 +257,7 @@ export default function HelpScreen() {
               activeOpacity={0.7}
             >
               <View style={[styles.contactIconContainer, { backgroundColor: '#E8F5E9' }]}>
-                <Text style={styles.contactIcon}>💬</Text>
+                <Messages2 size={28} color="#4CAF50" variant="Bold" />
               </View>
               <Text style={styles.contactTitle}>WhatsApp</Text>
               <Text style={styles.contactSubtitle}>Chat en vivo</Text>
@@ -246,7 +269,7 @@ export default function HelpScreen() {
               activeOpacity={0.7}
             >
               <View style={[styles.contactIconContainer, { backgroundColor: '#E3F2FD' }]}>
-                <Text style={styles.contactIcon}>📞</Text>
+                <Call size={28} color="#2196F3" variant="Bold" />
               </View>
               <Text style={styles.contactTitle}>Llamar</Text>
               <Text style={styles.contactSubtitle}>Atención directa</Text>
@@ -258,7 +281,7 @@ export default function HelpScreen() {
               activeOpacity={0.7}
             >
               <View style={[styles.contactIconContainer, { backgroundColor: '#FFF3E0' }]}>
-                <Text style={styles.contactIcon}>📧</Text>
+                <Sms size={28} color="#FF9800" variant="Bold" />
               </View>
               <Text style={styles.contactTitle}>Email</Text>
               <Text style={styles.contactSubtitle}>Soporte escrito</Text>
@@ -267,7 +290,7 @@ export default function HelpScreen() {
 
           {/* Info de Horario */}
           <View style={styles.scheduleCard}>
-            <Text style={styles.scheduleIcon}>⏰</Text>
+            <Clock size={24} color="#FFC107" variant="Bold" />
             <View style={styles.scheduleTextContainer}>
               <Text style={styles.scheduleTitle}>Horario de atención</Text>
               <Text style={styles.scheduleText}>{contactInfo.horario}</Text>
@@ -284,25 +307,33 @@ export default function HelpScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.categoriesScroll}
           >
-            {categorias.map((categoria) => (
-              <TouchableOpacity
-                key={categoria.id}
-                style={[
-                  styles.categoryChip,
-                  selectedCategory === categoria.id && styles.categoryChipSelected
-                ]}
-                onPress={() => setSelectedCategory(categoria.id)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.categoryIcon}>{categoria.icon}</Text>
-                <Text style={[
-                  styles.categoryText,
-                  selectedCategory === categoria.id && styles.categoryTextSelected
-                ]}>
-                  {categoria.nombre}
-                </Text>
-              </TouchableOpacity>
-            ))}
+            {categorias.map((categoria) => {
+              const IconComponent = categoria.IconComponent;
+              const isSelected = selectedCategory === categoria.id;
+              return (
+                <TouchableOpacity
+                  key={categoria.id}
+                  style={[
+                    styles.categoryChip,
+                    isSelected && styles.categoryChipSelected
+                  ]}
+                  onPress={() => setSelectedCategory(categoria.id)}
+                  activeOpacity={0.7}
+                >
+                  <IconComponent 
+                    size={16} 
+                    color={isSelected ? "white" : categoria.color} 
+                    variant="Bold" 
+                  />
+                  <Text style={[
+                    styles.categoryText,
+                    isSelected && styles.categoryTextSelected
+                  ]}>
+                    {categoria.nombre}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
         </View>
 
@@ -310,7 +341,7 @@ export default function HelpScreen() {
         <View style={styles.faqsContainer}>
           {faqsFiltradas.length === 0 ? (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyStateIcon}>🔍</Text>
+              <SearchNormal1 size={56} color="#E0E0E0" variant="Bulk" />
               <Text style={styles.emptyStateTitle}>No se encontraron resultados</Text>
               <Text style={styles.emptyStateText}>
                 Intenta con otros términos de búsqueda o contáctanos directamente
@@ -325,13 +356,19 @@ export default function HelpScreen() {
                 activeOpacity={0.7}
               >
                 <View style={styles.faqHeader}>
-                  <Text style={styles.faqPregunta}>{faq.pregunta}</Text>
-                  <Text style={[
-                    styles.faqArrow,
-                    expandedFAQ === faq.id && styles.faqArrowExpanded
-                  ]}>
-                    ›
-                  </Text>
+                  <View style={styles.faqPreguntaContainer}>
+                    <InfoCircle size={16} color="#5B7FFF" variant="Bold" />
+                    <Text style={styles.faqPregunta}>{faq.pregunta}</Text>
+                  </View>
+                  <ArrowRight2 
+                    size={20} 
+                    color="#5B7FFF" 
+                    variant="Bold"
+                    style={[
+                      styles.faqArrow,
+                      expandedFAQ === faq.id && styles.faqArrowExpanded
+                    ]}
+                  />
                 </View>
                 {expandedFAQ === faq.id && (
                   <View style={styles.faqRespuesta}>
@@ -347,10 +384,12 @@ export default function HelpScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recursos Adicionales</Text>
           
-          <TouchableOpacity style={styles.resourceItem} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.resourceItem} 
+            activeOpacity={0.7}
+            onPress={() => router.push('/PaS/learning_center')}>
             <View style={styles.resourceLeft}>
               <View style={[styles.resourceIcon, { backgroundColor: '#E8F5E9' }]}>
-                <Text style={styles.resourceEmoji}>📚</Text>
+                <Teacher size={24} color="#4CAF50" variant="Bold" />
               </View>
               <View style={styles.resourceTextContainer}>
                 <Text style={styles.resourceTitle}>Centro de aprendizaje</Text>
@@ -358,14 +397,18 @@ export default function HelpScreen() {
               </View>
             </View>
             <View style={styles.resourceArrowContainer}>
-              <Text style={styles.resourceArrow}>›</Text>
+              <ArrowRight2 size={18} color="#5B7FFF" variant="Bold" />
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.resourceItem} activeOpacity={0.7}>
+          <TouchableOpacity 
+            style={styles.resourceItem} 
+            activeOpacity={0.7}
+            onPress={() => router.push('/PaS/terms_and_conditions')}
+          >
             <View style={styles.resourceLeft}>
               <View style={[styles.resourceIcon, { backgroundColor: '#F3E5F5' }]}>
-                <Text style={styles.resourceEmoji}>📄</Text>
+                <DocumentText1 size={24} color="#9C27B0" variant="Bold" />
               </View>
               <View style={styles.resourceTextContainer}>
                 <Text style={styles.resourceTitle}>Términos y condiciones</Text>
@@ -373,14 +416,16 @@ export default function HelpScreen() {
               </View>
             </View>
             <View style={styles.resourceArrowContainer}>
-              <Text style={styles.resourceArrow}>›</Text>
+              <ArrowRight2 size={18} color="#5B7FFF" variant="Bold" />
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.resourceItem} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.resourceItem} 
+            activeOpacity={0.7}
+            onPress={() => router.push('/PaS/privacy_and_security')}>
             <View style={styles.resourceLeft}>
               <View style={[styles.resourceIcon, { backgroundColor: '#FFF3E0' }]}>
-                <Text style={styles.resourceEmoji}>🔒</Text>
+                <ShieldTick size={24} color="#FF9800" variant="Bold" />
               </View>
               <View style={styles.resourceTextContainer}>
                 <Text style={styles.resourceTitle}>Privacidad y seguridad</Text>
@@ -388,7 +433,7 @@ export default function HelpScreen() {
               </View>
             </View>
             <View style={styles.resourceArrowContainer}>
-              <Text style={styles.resourceArrow}>›</Text>
+              <ArrowRight2 size={18} color="#5B7FFF" variant="Bold" />
             </View>
           </TouchableOpacity>
         </View>
@@ -398,23 +443,23 @@ export default function HelpScreen() {
           <Text style={styles.contactInfoTitle}>Información de Contacto</Text>
           <View style={styles.contactInfoList}>
             <View style={styles.contactInfoItem}>
-              <Text style={styles.contactInfoIcon}>📧</Text>
+              <Sms size={18} color="#5B7FFF" variant="Bold" />
               <Text style={styles.contactInfoText}>{contactInfo.email}</Text>
             </View>
             <View style={styles.contactInfoItem}>
-              <Text style={styles.contactInfoIcon}>📞</Text>
+              <Call size={18} color="#5B7FFF" variant="Bold" />
               <Text style={styles.contactInfoText}>{contactInfo.telefono}</Text>
             </View>
             <View style={styles.contactInfoItem}>
-              <Text style={styles.contactInfoIcon}>💬</Text>
+              <Messages2 size={18} color="#5B7FFF" variant="Bold" />
               <Text style={styles.contactInfoText}>{contactInfo.whatsapp}</Text>
             </View>
           </View>
         </View>
 
         {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
+        <View style={styles.footerContainer}>
+          <Text style={styles.footerQuestion}>
             ¿No encontraste lo que buscabas?
           </Text>
           <TouchableOpacity 
@@ -423,10 +468,19 @@ export default function HelpScreen() {
             activeOpacity={0.8}
           >
             <Text style={styles.footerButtonText}>Chatea con nosotros</Text>
-            <Text style={styles.footerButtonArrow}>→</Text>
+            <ArrowRight2 size={18} color="white" variant="Bold" />
           </TouchableOpacity>
+          
+          {/* Créditos */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Biyuyo © 2025</Text>
+            <Text style={styles.footerSubtext}>Desarrollado por Ingenio Soluciones Ti</Text>
+            <Text style={styles.footerSubtext}>Tu aliado financiero de confianza</Text>
+          </View>
         </View>
       </ScrollView>
+      
+      <FloatingBottomMenu />
     </View>
   );
 }
@@ -462,11 +516,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8F9FD",
     justifyContent: "center",
     alignItems: "center",
-  },
-  backIcon: {
-    fontSize: scaleFont(24),
-    color: "#5B7FFF",
-    fontWeight: "bold",
   },
   headerCenter: {
     flex: 1,
@@ -528,8 +577,7 @@ const styles = StyleSheet.create({
   heroContent: {
     alignItems: "center",
   },
-  heroIcon: {
-    fontSize: scaleFont(48),
+  heroIconContainer: {
     marginBottom: verticalScale(12),
   },
   heroTitle: {
@@ -565,21 +613,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 3,
-  },
-  searchIcon: {
-    fontSize: scaleFont(20),
-    marginRight: scale(10),
+    gap: scale(10),
   },
   searchInput: {
     flex: 1,
     fontSize: scaleFont(15),
     color: "#1a1a1a",
     padding: 0,
-  },
-  clearIcon: {
-    fontSize: scaleFont(18),
-    color: "#999",
-    padding: scale(4),
   },
 
   // Contact Grid
@@ -620,9 +660,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: verticalScale(12),
   },
-  contactIcon: {
-    fontSize: scaleFont(28),
-  },
   contactTitle: {
     fontSize: scaleFont(14),
     fontWeight: "700",
@@ -644,10 +681,7 @@ const styles = StyleSheet.create({
     padding: scale(14),
     borderWidth: 1,
     borderColor: "rgba(255, 215, 0, 0.3)",
-  },
-  scheduleIcon: {
-    fontSize: scaleFont(24),
-    marginRight: scale(12),
+    gap: scale(12),
   },
   scheduleTextContainer: {
     flex: 1,
@@ -686,14 +720,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
+    gap: scale(6),
   },
   categoryChipSelected: {
     backgroundColor: "#5B7FFF",
     borderColor: "#5B7FFF",
-  },
-  categoryIcon: {
-    fontSize: scaleFont(16),
-    marginRight: scale(6),
   },
   categoryText: {
     fontSize: scaleFont(13),
@@ -727,17 +758,20 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  faqPreguntaContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(8),
+    marginRight: scale(10),
+  },
   faqPregunta: {
     flex: 1,
     fontSize: scaleFont(14),
     fontWeight: "700",
     color: "#1a1a1a",
-    marginRight: scale(10),
   },
   faqArrow: {
-    fontSize: scaleFont(24),
-    color: "#5B7FFF",
-    fontWeight: "bold",
     transform: [{ rotate: '0deg' }],
   },
   faqArrowExpanded: {
@@ -763,14 +797,11 @@ const styles = StyleSheet.create({
     padding: scale(40),
     alignItems: "center",
   },
-  emptyStateIcon: {
-    fontSize: scaleFont(56),
-    marginBottom: verticalScale(16),
-  },
   emptyStateTitle: {
     fontSize: scaleFont(18),
     fontWeight: "bold",
     color: "#1a1a1a",
+    marginTop: verticalScale(16),
     marginBottom: verticalScale(8),
   },
   emptyStateText: {
@@ -811,9 +842,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: scale(12),
   },
-  resourceEmoji: {
-    fontSize: scaleFont(20),
-  },
   resourceTextContainer: {
     flex: 1,
   },
@@ -835,11 +863,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8F9FD",
     justifyContent: "center",
     alignItems: "center",
-  },
-  resourceArrow: {
-    fontSize: scaleFont(18),
-    color: "#5B7FFF",
-    fontWeight: "bold",
   },
 
   // Contact Info Card
@@ -863,10 +886,7 @@ const styles = StyleSheet.create({
   contactInfoItem: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  contactInfoIcon: {
-    fontSize: scaleFont(18),
-    marginRight: scale(10),
+    gap: scale(10),
   },
   contactInfoText: {
     fontSize: scaleFont(13),
@@ -874,16 +894,17 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
-  // Footer
-  footer: {
+  // Footer Container
+  footerContainer: {
     alignItems: "center",
-    paddingVertical: verticalScale(20),
+    paddingVertical: verticalScale(24),
   },
-  footerText: {
+  footerQuestion: {
     fontSize: scaleFont(14),
     color: "#666",
-    marginBottom: verticalScale(12),
-    fontWeight: "500",
+    fontWeight: "600",
+    marginBottom: verticalScale(16),
+    textAlign: "center",
   },
   footerButton: {
     backgroundColor: "#4CAF50",
@@ -901,16 +922,26 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
+    gap: scale(6),
+    marginBottom: verticalScale(24),
   },
   footerButtonText: {
     color: "white",
     fontSize: scaleFont(15),
     fontWeight: "700",
-    marginRight: scale(6),
   },
-  footerButtonArrow: {
-    color: "white",
-    fontSize: scaleFont(18),
-    fontWeight: "bold",
+  footer: {
+    alignItems: "center",
+    paddingTop: verticalScale(20),
+  },
+  footerText: {
+    fontSize: scaleFont(12),
+    color: "#999",
+    fontWeight: "600",
+    marginBottom: verticalScale(3),
+  },
+  footerSubtext: {
+    fontSize: scaleFont(11),
+    color: "#bbb",
   },
 });

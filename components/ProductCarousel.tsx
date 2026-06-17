@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import {
-    Dimensions,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Dimensions,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 const { width } = Dimensions.get("window");
@@ -31,57 +31,91 @@ interface Product {
   description: string;
   icon: string;
   color: string;
-  amount?: string;
+  price: string;
+  category: string;
 }
 
 const PRODUCTS: Product[] = [
   {
     id: "1",
-    name: "Crédito Rápido",
-    description: "Hasta $500.000 en 24 horas",
-    icon: "⚡",
+    name: "Smartphone Pro",
+    description: "Última generación, 128GB",
+    icon: "📱",
     color: "#E3F2FD",
-    amount: "$500K",
+    price: "$899.990",
+    category: "Tecnología",
   },
   {
     id: "2",
-    name: "Crédito Personal",
-    description: "Hasta $2.000.000 flexible",
-    icon: "💼",
+    name: "Auriculares Bluetooth",
+    description: "Cancelación de ruido activa",
+    icon: "🎧",
     color: "#FFF3E0",
-    amount: "$2M",
+    price: "$149.990",
+    category: "Audio",
   },
   {
     id: "3",
-    name: "Crédito Educativo",
-    description: "Invierte en tu futuro",
-    icon: "🎓",
+    name: "Cafetera Espresso",
+    description: "Café profesional en casa",
+    icon: "☕",
     color: "#E8F5E9",
-    amount: "$5M",
+    price: "$299.990",
+    category: "Hogar",
   },
   {
     id: "4",
-    name: "Crédito Vivienda",
-    description: "Tu hogar te espera",
-    icon: "🏠",
+    name: "Zapatillas Running",
+    description: "Comodidad y rendimiento",
+    icon: "👟",
     color: "#F3E5F5",
-    amount: "$50M",
+    price: "$179.990",
+    category: "Deportes",
   },
   {
     id: "5",
-    name: "Crédito Vehículo",
-    description: "El auto de tus sueños",
-    icon: "🚗",
+    name: "Mochila Inteligente",
+    description: "Puerto USB y compartimentos",
+    icon: "🎒",
     color: "#FFE5E5",
-    amount: "$30M",
+    price: "$89.990",
+    category: "Accesorios",
+  },
+  {
+    id: "6",
+    name: "Tablet 10 pulgadas",
+    description: "Perfecta para estudiar y trabajar",
+    icon: "💻",
+    color: "#E1F5FE",
+    price: "$549.990",
+    category: "Tecnología",
+  },
+  {
+    id: "7",
+    name: "Reloj Inteligente",
+    description: "Monitoreo fitness 24/7",
+    icon: "⌚",
+    color: "#FFF9C4",
+    price: "$249.990",
+    category: "Wearables",
+  },
+  {
+    id: "8",
+    name: "Parlante Portátil",
+    description: "Sonido 360° resistente al agua",
+    icon: "🔊",
+    color: "#F0F4C3",
+    price: "$129.990",
+    category: "Audio",
   },
 ];
 
 interface ProductCarouselProps {
   onProductPress?: (product: Product) => void;
+  onSeeMorePress?: () => void;
 }
 
-export default function ProductCarousel({ onProductPress }: ProductCarouselProps) {
+export default function ProductCarousel({ onProductPress, onSeeMorePress }: ProductCarouselProps) {
   const scrollViewRef = useRef<ScrollView>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -110,11 +144,28 @@ export default function ProductCarousel({ onProductPress }: ProductCarouselProps
     }
   };
 
+  const handleSeeMorePress = () => {
+    if (onSeeMorePress) {
+      onSeeMorePress();
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Productos Disponibles</Text>
-        <Text style={styles.subtitle}>Desliza para ver más</Text>
+        <View style={styles.headerLeft}>
+          <Text style={styles.title}>Productos Destacados</Text>
+          <Text style={styles.subtitle}>Descubre las mejores ofertas</Text>
+        </View>
+        
+        <TouchableOpacity 
+          style={styles.seeMoreButton}
+          onPress={handleSeeMorePress}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.seeMoreText}>Ver más</Text>
+          <Text style={styles.seeMoreArrow}>→</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -142,6 +193,10 @@ export default function ProductCarousel({ onProductPress }: ProductCarouselProps
             onPress={() => handleProductPress(product)}
             activeOpacity={0.9}
           >
+            <View style={styles.categoryBadge}>
+              <Text style={styles.categoryText}>{product.category}</Text>
+            </View>
+
             <View style={[styles.iconContainer, { backgroundColor: product.color }]}>
               <Text style={styles.productIcon}>{product.icon}</Text>
             </View>
@@ -151,14 +206,14 @@ export default function ProductCarousel({ onProductPress }: ProductCarouselProps
               <Text style={styles.productDescription}>{product.description}</Text>
             </View>
 
-            <View style={styles.amountContainer}>
-              <Text style={styles.amountLabel}>Hasta</Text>
-              <Text style={styles.amountValue}>{product.amount}</Text>
+            <View style={styles.priceContainer}>
+              <Text style={styles.priceLabel}>Precio</Text>
+              <Text style={styles.priceValue}>{product.price}</Text>
             </View>
 
-            <View style={styles.applyButton}>
-              <Text style={styles.applyButtonText}>Solicitar</Text>
-              <Text style={styles.applyButtonArrow}>→</Text>
+            <View style={styles.buyButton}>
+              <Text style={styles.buyButtonText}>Agregar al carrito</Text>
+              <Text style={styles.buyButtonIcon}>🛒</Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -187,6 +242,12 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: scale(20),
     marginBottom: verticalScale(16),
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  headerLeft: {
+    flex: 1,
   },
   title: {
     fontSize: scaleFont(18),
@@ -198,6 +259,25 @@ const styles = StyleSheet.create({
     fontSize: scaleFont(13),
     color: "#999",
     fontWeight: "500",
+  },
+  seeMoreButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F8F9FD",
+    paddingVertical: verticalScale(8),
+    paddingHorizontal: scale(14),
+    borderRadius: moderateScale(20),
+    gap: scale(4),
+  },
+  seeMoreText: {
+    fontSize: scaleFont(13),
+    fontWeight: "600",
+    color: "#5B7FFF",
+  },
+  seeMoreArrow: {
+    fontSize: scaleFont(14),
+    color: "#5B7FFF",
+    fontWeight: "bold",
   },
   scrollContent: {
     paddingLeft: scale(20),
@@ -212,17 +292,30 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 8,
+      height: 2,
     },
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    elevation: 10,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
   firstCard: {
     // Primer card no necesita margen extra
   },
   lastCard: {
     marginRight: scale(20), // Último card con margen derecho
+  },
+  categoryBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "#5B7FFF",
+    paddingHorizontal: scale(10),
+    paddingVertical: verticalScale(4),
+    borderRadius: moderateScale(12),
+    marginBottom: verticalScale(12),
+  },
+  categoryText: {
+    fontSize: scaleFont(11),
+    color: "white",
+    fontWeight: "600",
   },
   iconContainer: {
     width: moderateScale(60),
@@ -249,24 +342,24 @@ const styles = StyleSheet.create({
     color: "#666",
     lineHeight: scaleFont(20),
   },
-  amountContainer: {
+  priceContainer: {
     backgroundColor: "#F8F9FD",
     borderRadius: moderateScale(12),
     padding: scale(12),
     marginBottom: verticalScale(16),
   },
-  amountLabel: {
+  priceLabel: {
     fontSize: scaleFont(11),
     color: "#999",
     marginBottom: verticalScale(2),
     fontWeight: "600",
   },
-  amountValue: {
+  priceValue: {
     fontSize: scaleFont(24),
     fontWeight: "bold",
-    color: "#5B7FFF",
+    color: "#2ECC71",
   },
-  applyButton: {
+  buyButton: {
     flexDirection: "row",
     backgroundColor: "#5B7FFF",
     paddingVertical: verticalScale(14),
@@ -275,16 +368,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  applyButtonText: {
+  buyButtonText: {
     fontSize: scaleFont(15),
     fontWeight: "700",
     color: "white",
     marginRight: scale(8),
   },
-  applyButtonArrow: {
+  buyButtonIcon: {
     fontSize: scaleFont(18),
-    color: "white",
-    fontWeight: "bold",
   },
   indicatorContainer: {
     flexDirection: "row",

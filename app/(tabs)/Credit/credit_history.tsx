@@ -1,16 +1,31 @@
+import FloatingBottomMenu from "@/components/Floatingbottommenu";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    Dimensions,
-    Image,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  Image,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+// Importar iconos de Iconsax
+import {
+  ArrowLeft,
+  ArrowRight2,
+  Calendar,
+  Cards,
+  Chart,
+  Clock,
+  DocumentText,
+  Lamp,
+  TickCircle,
+  Wallet,
+  Warning2,
+} from 'iconsax-react-native';
 
 const { width, height } = Dimensions.get("window");
 
@@ -146,10 +161,14 @@ export default function CreditHistoryScreen() {
   // Obtener ícono según estado
   const getEstadoIcon = (estado: string) => {
     switch (estado) {
-      case 'activo': return '⏳';
-      case 'pagado': return '✅';
-      case 'vencido': return '⚠️';
-      default: return '📋';
+      case 'activo': 
+        return <Clock size={14} color="#5B7FFF" variant="Bold" />;
+      case 'pagado': 
+        return <TickCircle size={14} color="#4CAF50" variant="Bold" />;
+      case 'vencido': 
+        return <Warning2 size={14} color="#FF5252" variant="Bold" />;
+      default: 
+        return <DocumentText size={14} color="#999" variant="Bold" />;
     }
   };
 
@@ -164,7 +183,7 @@ export default function CreditHistoryScreen() {
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <Text style={styles.backIcon}>←</Text>
+          <ArrowLeft size={24} color="#5B7FFF" variant="Bold" />
         </TouchableOpacity>
         
         <View style={styles.headerCenter}>
@@ -192,7 +211,7 @@ export default function CreditHistoryScreen() {
         <View style={styles.summaryCard}>
           <View style={styles.summaryHeader}>
             <View style={styles.summaryIconContainer}>
-              <Text style={styles.summaryIcon}>💳</Text>
+              <Cards size={28} color="#2196F3" variant="Bold" />
             </View>
             <View style={styles.summaryTextContainer}>
               <Text style={styles.summaryLabel}>Saldo Total Pendiente</Text>
@@ -248,11 +267,16 @@ export default function CreditHistoryScreen() {
               onPress={() => setSelectedFilter('todos')}
               activeOpacity={0.7}
             >
+              <DocumentText 
+                size={16} 
+                color={selectedFilter === 'todos' ? "white" : "#666"} 
+                variant="Bold" 
+              />
               <Text style={[
                 styles.filterButtonText,
                 selectedFilter === 'todos' && styles.filterButtonTextActive
               ]}>
-                📋 Todos
+                Todos
               </Text>
             </TouchableOpacity>
 
@@ -264,11 +288,16 @@ export default function CreditHistoryScreen() {
               onPress={() => setSelectedFilter('activos')}
               activeOpacity={0.7}
             >
+              <Clock 
+                size={16} 
+                color={selectedFilter === 'activos' ? "white" : "#666"} 
+                variant="Bold" 
+              />
               <Text style={[
                 styles.filterButtonText,
                 selectedFilter === 'activos' && styles.filterButtonTextActive
               ]}>
-                ⏳ Activos
+                Activos
               </Text>
             </TouchableOpacity>
 
@@ -280,11 +309,16 @@ export default function CreditHistoryScreen() {
               onPress={() => setSelectedFilter('pagados')}
               activeOpacity={0.7}
             >
+              <TickCircle 
+                size={16} 
+                color={selectedFilter === 'pagados' ? "white" : "#666"} 
+                variant="Bold" 
+              />
               <Text style={[
                 styles.filterButtonText,
                 selectedFilter === 'pagados' && styles.filterButtonTextActive
               ]}>
-                ✅ Pagados
+                Pagados
               </Text>
             </TouchableOpacity>
 
@@ -296,11 +330,16 @@ export default function CreditHistoryScreen() {
               onPress={() => setSelectedFilter('vencidos')}
               activeOpacity={0.7}
             >
+              <Warning2 
+                size={16} 
+                color={selectedFilter === 'vencidos' ? "white" : "#666"} 
+                variant="Bold" 
+              />
               <Text style={[
                 styles.filterButtonText,
                 selectedFilter === 'vencidos' && styles.filterButtonTextActive
               ]}>
-                ⚠️ Vencidos
+                Vencidos
               </Text>
             </TouchableOpacity>
           </ScrollView>
@@ -314,7 +353,7 @@ export default function CreditHistoryScreen() {
 
           {creditosFiltrados.length === 0 ? (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyStateIcon}>📭</Text>
+              <DocumentText size={56} color="#E0E0E0" variant="Bulk" />
               <Text style={styles.emptyStateTitle}>No hay créditos</Text>
               <Text style={styles.emptyStateText}>
                 No se encontraron créditos con este filtro
@@ -334,9 +373,9 @@ export default function CreditHistoryScreen() {
                       styles.creditStatusBadge,
                       { backgroundColor: `${getEstadoColor(credito.estado)}20` }
                     ]}>
-                      <Text style={styles.creditStatusIcon}>
+                      <View style={styles.creditStatusIcon}>
                         {getEstadoIcon(credito.estado)}
-                      </Text>
+                      </View>
                       <Text style={[
                         styles.creditStatusText,
                         { color: getEstadoColor(credito.estado) }
@@ -385,17 +424,27 @@ export default function CreditHistoryScreen() {
                   </View>
                 )}
 
-                {/* Detalles del crédito */}
+                {/* Detalles del crédito con iconos de colores */}
                 <View style={styles.creditDetails}>
                   <View style={styles.creditDetailRow}>
                     <View style={styles.creditDetailItem}>
-                      <Text style={styles.creditDetailLabel}>📅 Fecha</Text>
+                      <View style={styles.creditDetailLabelWithIcon}>
+                        <Calendar size={14} color="#FF9800" variant="Bold" />
+                        <Text style={styles.creditDetailLabel}>Fecha</Text>
+                      </View>
                       <Text style={styles.creditDetailValue}>{credito.fecha}</Text>
                     </View>
                     <View style={styles.creditDetailItem}>
-                      <Text style={styles.creditDetailLabel}>
-                        {credito.estado === 'pagado' ? '✅ Pagado' : '⏰ Vence'}
-                      </Text>
+                      <View style={styles.creditDetailLabelWithIcon}>
+                        {credito.estado === 'pagado' ? (
+                          <TickCircle size={14} color="#4CAF50" variant="Bold" />
+                        ) : (
+                          <Clock size={14} color="#5B7FFF" variant="Bold" />
+                        )}
+                        <Text style={styles.creditDetailLabel}>
+                          {credito.estado === 'pagado' ? 'Pagado' : 'Vence'}
+                        </Text>
+                      </View>
                       <Text style={[
                         styles.creditDetailValue,
                         credito.estado === 'vencido' && { color: '#FF5252' }
@@ -407,7 +456,10 @@ export default function CreditHistoryScreen() {
 
                   <View style={styles.creditDetailRow}>
                     <View style={styles.creditDetailItem}>
-                      <Text style={styles.creditDetailLabel}>💰 Saldo</Text>
+                      <View style={styles.creditDetailLabelWithIcon}>
+                        <Wallet size={14} color="#E91E63" variant="Bold" />
+                        <Text style={styles.creditDetailLabel}>Saldo</Text>
+                      </View>
                       <Text style={[
                         styles.creditDetailValue,
                         styles.creditDetailValueBold,
@@ -417,7 +469,10 @@ export default function CreditHistoryScreen() {
                       </Text>
                     </View>
                     <View style={styles.creditDetailItem}>
-                      <Text style={styles.creditDetailLabel}>📊 Interés</Text>
+                      <View style={styles.creditDetailLabelWithIcon}>
+                        <Chart size={14} color="#9C27B0" variant="Bold" />
+                        <Text style={styles.creditDetailLabel}>Interés</Text>
+                      </View>
                       <Text style={styles.creditDetailValue}>
                         {credito.interes}% mensual
                       </Text>
@@ -433,7 +488,7 @@ export default function CreditHistoryScreen() {
                     activeOpacity={0.8}
                   >
                     <Text style={styles.creditActionButtonText}>Pagar ahora</Text>
-                    <Text style={styles.creditActionButtonArrow}>→</Text>
+                    <ArrowRight2 size={16} color="white" variant="Bold" />
                   </TouchableOpacity>
                 )}
 
@@ -443,8 +498,9 @@ export default function CreditHistoryScreen() {
                     onPress={() => router.push('/(tabs)/Credit/pay_credit')}
                     activeOpacity={0.8}
                   >
+                    <Warning2 size={18} color="white" variant="Bold" />
                     <Text style={styles.creditActionButtonTextDanger}>
-                      ⚠️ Ponerse al día
+                      Ponerse al día
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -453,13 +509,23 @@ export default function CreditHistoryScreen() {
           )}
         </View>
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            💡 Mantén tus pagos al día para mejorar tu historial
+        {/* Footer de consejo */}
+        <View style={styles.footerTip}>
+          <Lamp size={16} color="#FFC107" variant="Bold" />
+          <Text style={styles.footerTipText}>
+            Mantén tus pagos al día para mejorar tu historial
           </Text>
         </View>
+
+        {/* Footer estándar */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Biyuyo © 2025</Text>
+          <Text style={styles.footerSubtext}>Desarrollado por Ingenio Soluciones Ti</Text>
+          <Text style={styles.footerSubtext}>Tu aliado financiero de confianza</Text>
+        </View>
       </ScrollView>
+
+      <FloatingBottomMenu />
     </View>
   );
 }
@@ -495,11 +561,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8F9FD",
     justifyContent: "center",
     alignItems: "center",
-  },
-  backIcon: {
-    fontSize: scaleFont(24),
-    color: "#5B7FFF",
-    fontWeight: "bold",
   },
   headerCenter: {
     flex: 1,
@@ -540,7 +601,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: scale(20),
     paddingTop: verticalScale(20),
-    paddingBottom: verticalScale(30),
+    paddingBottom: verticalScale(120),
   },
 
   // Summary Card
@@ -571,9 +632,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: scale(14),
-  },
-  summaryIcon: {
-    fontSize: scaleFont(28),
   },
   summaryTextContainer: {
     flex: 1,
@@ -631,6 +689,9 @@ const styles = StyleSheet.create({
     gap: scale(10),
   },
   filterButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(6),
     paddingHorizontal: scale(16),
     paddingVertical: verticalScale(10),
     borderRadius: moderateScale(20),
@@ -677,14 +738,11 @@ const styles = StyleSheet.create({
     padding: scale(40),
     alignItems: "center",
   },
-  emptyStateIcon: {
-    fontSize: scaleFont(56),
-    marginBottom: verticalScale(16),
-  },
   emptyStateTitle: {
     fontSize: scaleFont(18),
     fontWeight: "bold",
     color: "#1a1a1a",
+    marginTop: verticalScale(16),
     marginBottom: verticalScale(8),
   },
   emptyStateText: {
@@ -726,10 +784,10 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(6),
     borderRadius: moderateScale(16),
     alignSelf: "flex-start",
+    gap: scale(6),
   },
   creditStatusIcon: {
-    fontSize: scaleFont(14),
-    marginRight: scale(6),
+    marginRight: scale(2),
   },
   creditStatusText: {
     fontSize: scaleFont(12),
@@ -800,10 +858,15 @@ const styles = StyleSheet.create({
   creditDetailItem: {
     flex: 1,
   },
+  creditDetailLabelWithIcon: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(4),
+    marginBottom: verticalScale(4),
+  },
   creditDetailLabel: {
     fontSize: scaleFont(11),
     color: "#999",
-    marginBottom: verticalScale(4),
     fontWeight: "500",
   },
   creditDetailValue: {
@@ -825,17 +888,12 @@ const styles = StyleSheet.create({
     paddingVertical: verticalScale(12),
     borderRadius: moderateScale(12),
     marginTop: verticalScale(14),
+    gap: scale(6),
   },
   creditActionButtonText: {
     color: "white",
     fontSize: scaleFont(14),
     fontWeight: "700",
-    marginRight: scale(6),
-  },
-  creditActionButtonArrow: {
-    color: "white",
-    fontSize: scaleFont(16),
-    fontWeight: "bold",
   },
   creditActionButtonDanger: {
     backgroundColor: "#FF5252",
@@ -846,17 +904,38 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
-  // Footer
-  footer: {
+  // Footer de consejo
+  footerTip: {
+    flexDirection: "row",
     alignItems: "center",
-    paddingVertical: verticalScale(20),
+    justifyContent: "center",
+    paddingVertical: verticalScale(16),
     paddingHorizontal: scale(20),
+    gap: scale(8),
+    marginBottom: verticalScale(24),
   },
-  footerText: {
+  footerTipText: {
     fontSize: scaleFont(12),
     color: "#999",
     fontWeight: "500",
     textAlign: "center",
     lineHeight: scaleFont(18),
+  },
+
+  // Footer estándar
+  footer: {
+    alignItems: "center",
+    paddingVertical: verticalScale(20),
+    paddingBottom: verticalScale(30),
+  },
+  footerText: {
+    fontSize: scaleFont(12),
+    color: "#999",
+    fontWeight: "600",
+    marginBottom: verticalScale(3),
+  },
+  footerSubtext: {
+    fontSize: scaleFont(11),
+    color: "#bbb",
   },
 });

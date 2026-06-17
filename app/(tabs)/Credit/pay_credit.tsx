@@ -1,18 +1,29 @@
+import FloatingBottomMenu from "@/components/Floatingbottommenu";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    Alert,
-    Dimensions,
-    Image,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Dimensions,
+  Image,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+// Importar iconos de Iconsax
+import {
+  ArrowLeft,
+  ArrowRight2,
+  Calendar,
+  CardPos,
+  InfoCircle,
+  Lock,
+  Wallet,
+} from 'iconsax-react-native';
 
 const { width, height } = Dimensions.get("window");
 
@@ -81,10 +92,30 @@ export default function PayCreditScreen() {
   };
 
   const metodoPago = [
-    { id: "pse", nombre: "PSE", icon: "🏦", descripcion: "Pago en línea" },
-    { id: "nequi", nombre: "Nequi", icon: "💜", descripcion: "Pago digital" },
-    { id: "daviplata", nombre: "Daviplata", icon: "🔴", descripcion: "Billetera digital" },
-    { id: "tarjeta", nombre: "Tarjeta", icon: "💳", descripcion: "Débito/Crédito" },
+    { 
+      id: "pse", 
+      nombre: "PSE", 
+      logo: require('../../../assets/images/pse-logo.png'),
+      descripcion: "Pago en línea" 
+    },
+    { 
+      id: "nequi", 
+      nombre: "Nequi", 
+      logo: require('../../../assets/images/nequi-logo.png'),
+      descripcion: "Pago digital" 
+    },
+    { 
+      id: "daviplata", 
+      nombre: "Daviplata", 
+      logo: require('../../../assets/images/daviplata-logo.png'),
+      descripcion: "Billetera digital" 
+    },
+    { 
+      id: "tarjeta", 
+      nombre: "Tarjeta", 
+      icon: "card",
+      descripcion: "Débito/Crédito" 
+    },
   ];
 
   return (
@@ -98,7 +129,7 @@ export default function PayCreditScreen() {
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <Text style={styles.backIcon}>←</Text>
+          <ArrowLeft size={24} color="#5B7FFF" variant="Bold" />
         </TouchableOpacity>
         
         <View style={styles.headerCenter}>
@@ -126,7 +157,7 @@ export default function PayCreditScreen() {
         <View style={styles.summaryCard}>
           <View style={styles.summaryHeader}>
             <View style={styles.summaryIcon}>
-              <Text style={styles.summaryIconText}>💰</Text>
+              <Wallet size={28} color="#FF9800" variant="Bold" />
             </View>
             <View style={styles.summaryTextContainer}>
               <Text style={styles.summaryLabel}>Saldo Pendiente</Text>
@@ -148,7 +179,10 @@ export default function PayCreditScreen() {
               <Text style={styles.summaryDetailValue}>{formatCurrency(cuotaMinima)}</Text>
             </View>
             <View style={styles.summaryDetailRow}>
-              <Text style={styles.summaryDetailLabel}>Próximo vencimiento</Text>
+              <View style={styles.detailLabelWithIcon}>
+                <Calendar size={16} color="#666" variant="Bold" />
+                <Text style={styles.summaryDetailLabel}>Próximo vencimiento</Text>
+              </View>
               <Text style={[styles.summaryDetailValue, { color: '#FF5252' }]}>
                 {proximoVencimiento}
               </Text>
@@ -217,7 +251,15 @@ export default function PayCreditScreen() {
                     styles.paymentMethodIcon,
                     selectedMethod === metodo.id && styles.paymentMethodIconSelected
                   ]}>
-                    <Text style={styles.paymentMethodEmoji}>{metodo.icon}</Text>
+                    {metodo.icon === "card" ? (
+                      <CardPos size={24} color="#5B7FFF" variant="Bold" />
+                    ) : (
+                      <Image 
+                        source={metodo.logo}
+                        style={styles.paymentMethodLogo}
+                        resizeMode="contain"
+                      />
+                    )}
                   </View>
                   <View style={styles.paymentMethodInfo}>
                     <Text style={styles.paymentMethodName}>{metodo.nombre}</Text>
@@ -240,7 +282,7 @@ export default function PayCreditScreen() {
         {/* Información Adicional */}
         <View style={styles.infoBox}>
           <View style={styles.infoIconContainer}>
-            <Text style={styles.infoEmoji}>ℹ️</Text>
+            <InfoCircle size={24} color="#5B7FFF" variant="Bold" />
           </View>
           <View style={styles.infoTextContainer}>
             <Text style={styles.infoTitle}>Información importante</Text>
@@ -265,14 +307,23 @@ export default function PayCreditScreen() {
           <Text style={styles.payButtonText}>
             Pagar {montoAPagar ? formatCurrency(parseFloat(montoAPagar)) : 'ahora'}
           </Text>
-          <Text style={styles.payButtonArrow}>→</Text>
+          <ArrowRight2 size={20} color="white" variant="Bold" />
         </TouchableOpacity>
 
-        {/* Footer */}
+        {/* Footer de seguridad */}
+        <View style={styles.securityFooter}>
+          <Lock size={16} color="#999" variant="Bold" />
+          <Text style={styles.securityFooterText}>Pago 100% seguro y protegido</Text>
+        </View>
+
+        {/* Footer estándar */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>🔒 Pago 100% seguro y protegido</Text>
+          <Text style={styles.footerText}>Biyuyo © 2025</Text>
+          <Text style={styles.footerSubtext}>Desarrollado por Ingenio Soluciones Ti</Text>
+          <Text style={styles.footerSubtext}>Tu aliado financiero de confianza</Text>
         </View>
       </ScrollView>
+      <FloatingBottomMenu />
     </View>
   );
 }
@@ -308,11 +359,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8F9FD",
     justifyContent: "center",
     alignItems: "center",
-  },
-  backIcon: {
-    fontSize: scaleFont(24),
-    color: "#5B7FFF",
-    fontWeight: "bold",
   },
   headerCenter: {
     flex: 1,
@@ -353,7 +399,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: scale(20),
     paddingTop: verticalScale(20),
-    paddingBottom: verticalScale(30),
+    paddingBottom: verticalScale(120),
   },
   
   // Summary Card
@@ -387,9 +433,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: scale(14),
   },
-  summaryIconText: {
-    fontSize: scaleFont(28),
-  },
   summaryTextContainer: {
     flex: 1,
   },
@@ -416,6 +459,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  detailLabelWithIcon: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(6),
   },
   summaryDetailLabel: {
     fontSize: scaleFont(13),
@@ -556,8 +604,9 @@ const styles = StyleSheet.create({
   paymentMethodIconSelected: {
     backgroundColor: "white",
   },
-  paymentMethodEmoji: {
-    fontSize: scaleFont(22),
+  paymentMethodLogo: {
+    width: moderateScale(32),
+    height: moderateScale(32),
   },
   paymentMethodInfo: {
     flex: 1,
@@ -611,9 +660,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: scale(12),
   },
-  infoEmoji: {
-    fontSize: scaleFont(20),
-  },
   infoTextContainer: {
     flex: 1,
   },
@@ -647,6 +693,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 8,
     marginBottom: verticalScale(20),
+    gap: scale(8),
   },
   payButtonDisabled: {
     backgroundColor: "#ccc",
@@ -657,22 +704,37 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: scaleFont(17),
     fontWeight: "bold",
-    marginRight: scale(8),
-  },
-  payButtonArrow: {
-    color: "white",
-    fontSize: scaleFont(20),
-    fontWeight: "bold",
   },
 
-  // Footer
+  // Security Footer
+  securityFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: verticalScale(16),
+    gap: scale(6),
+    marginBottom: verticalScale(24),
+  },
+  securityFooterText: {
+    fontSize: scaleFont(12),
+    color: "#999",
+    fontWeight: "600",
+  },
+
+  // Footer estándar
   footer: {
     alignItems: "center",
-    paddingVertical: verticalScale(16),
+    paddingVertical: verticalScale(20),
+    paddingBottom: verticalScale(30),
   },
   footerText: {
     fontSize: scaleFont(12),
     color: "#999",
     fontWeight: "600",
+    marginBottom: verticalScale(3),
+  },
+  footerSubtext: {
+    fontSize: scaleFont(11),
+    color: "#bbb",
   },
 });

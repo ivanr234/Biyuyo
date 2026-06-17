@@ -1,9 +1,12 @@
+import FloatingBottomMenu from "@/components/Floatingbottommenu";
 import ProductCarousel from "@/components/ProductCarousel";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
+  Animated,
   Dimensions,
+  Easing,
   Image,
   Platform,
   ScrollView,
@@ -13,7 +16,21 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-   
+// Importar iconos de Iconsax
+import {
+  ArrowRight2,
+  Calendar,
+  ChartSquare,
+  Gift,
+  Key,
+  Logout,
+  MessageQuestion,
+  MoneyRecive,
+  Notification,
+  Wallet,
+} from "iconsax-react-native";
+import Svg, { Circle } from "react-native-svg";
+
 const { width, height } = Dimensions.get("window");
 
 // Función para escalar dimensiones basadas en el ancho de pantalla
@@ -22,7 +39,7 @@ const scale = (size: number) => (width / 375) * size;
 // Función para escalar fuentes
 const scaleFont = (size: number) => {
   const newSize = (width / 375) * size;
-  if (Platform.OS === 'ios') {
+  if (Platform.OS === "ios") {
     return Math.round(newSize);
   }
   return Math.round(newSize) - 1;
@@ -41,9 +58,166 @@ const isSmallDevice = width < 375;
 const isMediumDevice = width >= 375 && width < 414;
 const isLargeDevice = width >= 414;
 
+// Componente de animación circular para el timer
+const CircularProgress = ({
+  progress,
+  size = 56,
+}: {
+  progress: number;
+  size?: number;
+}) => {
+  const strokeWidth = 3;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  return (
+    <View style={{ width: size, height: size }}>
+      <Svg
+        width={size}
+        height={size}
+        style={{ transform: [{ rotate: "-90deg" }] }}
+      >
+        {/* Círculo de fondo */}
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="#E0E0E0"
+          strokeWidth={strokeWidth}
+          fill="none"
+        />
+        {/* Círculo de progreso */}
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="#5B7FFF"
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+        />
+      </Svg>
+      <View style={styles.circularProgressContent}>
+        <Key size={18} color="#5B7FFF" variant="Bold" />
+      </View>
+    </View>
+  );
+};
+
+// Componente de Skeleton
+const SkeletonLoader = () => {
+  const [fadeAnim] = useState(new Animated.Value(0.3));
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(fadeAnim, {
+          toValue: 0.3,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, []);
+
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="white" />
+
+      {/* Header Skeleton */}
+      <View style={styles.header}>
+        <Animated.View style={[styles.skeletonLogo, { opacity: fadeAnim }]} />
+        <View style={styles.headerBottom}>
+          <View style={styles.greetingContainer}>
+            <Animated.View
+              style={[styles.skeletonGreeting, { opacity: fadeAnim }]}
+            />
+            <Animated.View
+              style={[styles.skeletonSubGreeting, { opacity: fadeAnim }]}
+            />
+          </View>
+          <View style={styles.headerRightActions}>
+            <Animated.View
+              style={[styles.skeletonNotification, { opacity: fadeAnim }]}
+            />
+          </View>
+        </View>
+      </View>
+
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Main Card Skeleton */}
+        <Animated.View
+          style={[styles.skeletonMainCard, { opacity: fadeAnim }]}
+        />
+
+        {/* Info Grid Skeleton */}
+        <View style={styles.infoGrid}>
+          <Animated.View
+            style={[styles.skeletonInfoCard, { opacity: fadeAnim }]}
+          />
+          <Animated.View
+            style={[styles.skeletonInfoCard, { opacity: fadeAnim }]}
+          />
+        </View>
+
+        {/* Product Carousel Skeleton */}
+        <View style={styles.section}>
+          <Animated.View
+            style={[styles.skeletonSectionTitle, { opacity: fadeAnim }]}
+          />
+          <View style={styles.skeletonProductsContainer}>
+            <Animated.View
+              style={[styles.skeletonProduct, { opacity: fadeAnim }]}
+            />
+            <Animated.View
+              style={[styles.skeletonProduct, { opacity: fadeAnim }]}
+            />
+          </View>
+        </View>
+
+        {/* Actions Skeleton */}
+        <View style={styles.section}>
+          <Animated.View
+            style={[styles.skeletonSectionTitle, { opacity: fadeAnim }]}
+          />
+          <Animated.View
+            style={[styles.skeletonAction, { opacity: fadeAnim }]}
+          />
+          <Animated.View
+            style={[styles.skeletonAction, { opacity: fadeAnim }]}
+          />
+          <Animated.View
+            style={[styles.skeletonAction, { opacity: fadeAnim }]}
+          />
+          <Animated.View
+            style={[styles.skeletonAction, { opacity: fadeAnim }]}
+          />
+        </View>
+      </ScrollView>
+
+      <FloatingBottomMenu />
+    </View>
+  );
+};
+
 export default function DashboardScreen() {
   const router = useRouter();
-  
+
+  // Estado de carga
+  const [isLoading, setIsLoading] = useState(true);
+
   // Datos del usuario
   const [cupoDisponible] = useState(500000);
   const [cupoTotal] = useState(1000000);
@@ -51,11 +225,57 @@ export default function DashboardScreen() {
   const [proximoPago] = useState("15 Nov 2025");
   const [userName] = useState("Usuario");
 
+  // Estado para la clave dinámica
+  const [dynamicKey, setDynamicKey] = useState("000000");
+  const [timeRemaining, setTimeRemaining] = useState(60);
+  const [showKeyExpanded, setShowKeyExpanded] = useState(false);
+  const [slideAnim] = useState(new Animated.Value(0));
+  const [greetingAnim] = useState(new Animated.Value(0));
+
+  // Generar clave dinámica de 6 dígitos
+  const generateDynamicKey = () => {
+    const key = Math.floor(Math.random() * 1000000)
+      .toString()
+      .padStart(6, "0");
+    setDynamicKey(key);
+    setTimeRemaining(60);
+  };
+
+  // Simular carga de datos
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Generar clave inicial y configurar timer
+  useEffect(() => {
+    generateDynamicKey();
+  }, []);
+
+  // Timer para la clave dinámica
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev <= 1) {
+          generateDynamicKey();
+          return 60;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const formatCurrency = (amount: number) => {
-    return `$${amount.toLocaleString('es-CO')}`;
+    return `$${amount.toLocaleString("es-CO")}`;
   };
 
   const porcentajeUsado = ((cupoTotal - cupoDisponible) / cupoTotal) * 100;
+  const progressPercentage = (timeRemaining / 60) * 100;
 
   const handleProductPress = (product: any) => {
     Alert.alert(
@@ -63,28 +283,58 @@ export default function DashboardScreen() {
       `¿Deseas solicitar ${product.name}?\n\n${product.description}`,
       [
         { text: "Cancelar", style: "cancel" },
-        { 
-          text: "Solicitar", 
+        {
+          text: "Solicitar",
           onPress: () => {
-            Alert.alert("Solicitud iniciada", "Serás redirigido al proceso de solicitud");
-            // Aquí puedes agregar la navegación a la pantalla de solicitud
-            // router.push('/(tabs)/Credit/request_credit');
-          }
-        }
-      ]
+            Alert.alert(
+              "Solicitud iniciada",
+              "Serás redirigido al proceso de solicitud",
+            );
+          },
+        },
+      ],
     );
   };
+
+  const handleKeyPress = () => {
+    setShowKeyExpanded(!showKeyExpanded);
+
+    // Animar los números
+    Animated.timing(slideAnim, {
+      toValue: showKeyExpanded ? 0 : 1,
+      duration: 300,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.cubic),
+    }).start();
+
+    // Animar el saludo (sube/baja suavemente)
+    Animated.timing(greetingAnim, {
+      toValue: showKeyExpanded ? 0 : 1,
+      duration: 300,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.cubic),
+    }).start();
+  };
+
+  const handleCopyKey = () => {
+    Alert.alert("Clave copiada", `Clave ${dynamicKey} copiada al portapapeles`);
+  };
+
+  // Mostrar skeleton mientras carga
+  if (isLoading) {
+    return <SkeletonLoader />;
+  }
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="white" />
 
-      {/* Header mejorado */}
+      {/* Header mejorado con clave dinámica */}
       <View style={styles.header}>
         {/* Logo principal */}
         <View style={styles.logoContainer}>
-          <Image 
-            source={require('../../../assets/images/logo-biyuyo.png')}
+          <Image
+            source={require("../../../assets/images/logo-biyuyo.png")}
             style={styles.logoImage}
             resizeMode="contain"
           />
@@ -92,40 +342,88 @@ export default function DashboardScreen() {
 
         {/* Saludo y acciones */}
         <View style={styles.headerBottom}>
-          <View style={styles.greetingContainer}>
+          <Animated.View
+            style={[
+              styles.greetingContainer,
+              {
+                transform: [
+                  {
+                    translateY: greetingAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, -3],
+                    }),
+                  },
+                ],
+                opacity: greetingAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 0.85],
+                }),
+              },
+            ]}
+          >
             <Text style={styles.greeting}>Hola, {userName}</Text>
             <Text style={styles.subGreeting}>¿Qué quieres hacer hoy?</Text>
-          </View>
-          
+          </Animated.View>
+
           <View style={styles.headerRightActions}>
+            {/* Contenedor para los números y el círculo */}
+            <View style={styles.keyContainer}>
+              {/* Números de la clave */}
+              {showKeyExpanded && (
+                <Animated.View
+                  style={[
+                    styles.keyNumbersRow,
+                    {
+                      opacity: slideAnim,
+                      transform: [
+                        {
+                          translateX: slideAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [30, 0],
+                          }),
+                        },
+                      ],
+                    },
+                  ]}
+                >
+                  {dynamicKey.split("").map((digit, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.miniDigitBox}
+                      onPress={handleCopyKey}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={styles.miniDigitText}>{digit}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </Animated.View>
+              )}
+
+              {/* Botón circular con animación de progreso */}
+              <TouchableOpacity
+                style={styles.dynamicKeyButton}
+                onPress={handleKeyPress}
+                activeOpacity={0.7}
+              >
+                <CircularProgress progress={progressPercentage} size={56} />
+                <View style={styles.keyBadge}>
+                  <Text style={styles.keyBadgeText}>{timeRemaining}s</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+
             {/* Botón de Notificaciones */}
             <TouchableOpacity style={styles.notificationButton}>
-              <Text style={styles.notificationIcon}>🔔</Text>
+              <Notification size={22} color="#5B7FFF" variant="Bold" />
               <View style={styles.notificationBadge}>
                 <Text style={styles.badgeText}>2</Text>
-              </View>
-            </TouchableOpacity>
-            
-            {/* Botón de Perfil Mejorado */}
-            <TouchableOpacity 
-              style={styles.profileButton}
-              onPress={() => router.push('/(tabs)/Profile')}
-              activeOpacity={0.8}
-            >
-              <View style={styles.profileAvatarContainer}>
-                <View style={styles.profileAvatar}>
-                  <Text style={styles.profileAvatarText}>
-                    {userName.charAt(0)}
-                  </Text>
-                </View>
-                <View style={styles.profileStatusDot} />
               </View>
             </TouchableOpacity>
           </View>
         </View>
       </View>
 
-      <ScrollView 
+      <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -142,44 +440,44 @@ export default function DashboardScreen() {
                 </View>
               </View>
               <View style={styles.cardIcon}>
-                <Text style={styles.cardIconText}>💰</Text>
+                <Wallet size={26} color="#FFD700" variant="Bold" />
               </View>
             </View>
 
             <View style={styles.amountContainer}>
-              <Text 
+              <Text
                 style={styles.mainAmount}
                 adjustsFontSizeToFit
                 numberOfLines={1}
               >
                 {formatCurrency(cupoDisponible)}
               </Text>
-              <Text style={styles.mainSubtext}>de {formatCurrency(cupoTotal)} COP</Text>
+              <Text style={styles.mainSubtext}>
+                de {formatCurrency(cupoTotal)} COP
+              </Text>
             </View>
 
             {/* Barra de progreso mejorada */}
             <View style={styles.progressContainer}>
               <View style={styles.progressHeader}>
                 <Text style={styles.progressLabel}>Cupo utilizado</Text>
-                <Text style={styles.progressPercentage}>{porcentajeUsado.toFixed(0)}%</Text>
+                <Text style={styles.progressPercentage}>
+                  {porcentajeUsado.toFixed(0)}%
+                </Text>
               </View>
               <View style={styles.progressBar}>
-                <View 
+                <View
                   style={[
-                    styles.progressFill, 
-                    { width: `${porcentajeUsado}%` }
-                  ]} 
+                    styles.progressFill,
+                    { width: `${porcentajeUsado}%` },
+                  ]}
                 />
               </View>
             </View>
 
             {/* Botón principal */}
-            <TouchableOpacity 
-              style={styles.primaryButton}
-              activeOpacity={0.85}
-            >
+            <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85}>
               <Text style={styles.primaryButtonText}>Solicitar Crédito</Text>
-              <Text style={styles.buttonArrow}>→</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -188,11 +486,13 @@ export default function DashboardScreen() {
         <View style={styles.infoGrid}>
           {/* Crédito Activo */}
           <View style={styles.infoCard}>
-            <View style={[styles.infoIconContainer, { backgroundColor: '#E3F2FD' }]}>
-              <Text style={styles.infoIcon}>💳</Text>
+            <View
+              style={[styles.infoIconContainer, { backgroundColor: "#E3F2FD" }]}
+            >
+              <MoneyRecive size={24} color="#2196F3" variant="Bold" />
             </View>
             <Text style={styles.infoLabel}>Crédito Activo</Text>
-            <Text 
+            <Text
               style={styles.infoAmount}
               adjustsFontSizeToFit
               numberOfLines={1}
@@ -204,8 +504,10 @@ export default function DashboardScreen() {
 
           {/* Próximo Pago */}
           <View style={styles.infoCard}>
-            <View style={[styles.infoIconContainer, { backgroundColor: '#FFF3E0' }]}>
-              <Text style={styles.infoIcon}>📅</Text>
+            <View
+              style={[styles.infoIconContainer, { backgroundColor: "#FFF3E0" }]}
+            >
+              <Calendar size={24} color="#FF9800" variant="Bold" />
             </View>
             <Text style={styles.infoLabel}>Próximo Pago</Text>
             <Text style={styles.infoDate}>{proximoPago}</Text>
@@ -213,82 +515,111 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* ===== CARRUSEL DE PRODUCTOS - NUEVO ===== */}
+        {/* ===== CARRUSEL DE PRODUCTOS ===== */}
         <ProductCarousel onProductPress={handleProductPress} />
 
         {/* Acciones Rápidas con mejor diseño */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Acciones Rápidas</Text>
-          
-          {/* PAGAR MI CRÉDITO */}
-          <TouchableOpacity 
-            style={styles.actionItem} 
+
+          {/* PAGAR MIS SERVICIOS PÚBLICOS - NUEVO */}
+          <TouchableOpacity
+            style={styles.actionItem}
             activeOpacity={0.7}
-            onPress={() => router.push('/(tabs)/Credit/pay_credit')}
+            onPress={() => router.push("/(tabs)/Services/Pay_services")}
           >
             <View style={styles.actionLeft}>
-              <View style={[styles.actionIcon, { backgroundColor: '#E8F5E9' }]}>
-                <Text style={styles.actionEmoji}>💰</Text>
+              <View style={[styles.actionIcon, { backgroundColor: "#FFF9E6" }]}>
+                <Gift size={24} color="#FFA000" variant="Bold" />
               </View>
               <View style={styles.actionTextContainer}>
-                <Text style={styles.actionTitle}>Pagar mi crédito</Text>
-                <Text style={styles.actionSubtitle}>Realiza un abono o paga tu cuota</Text>
+                <Text style={styles.actionTitle}>
+                  Pagar mis servicios públicos
+                </Text>
+                <Text style={styles.actionSubtitle}>Agua, luz, gas y más</Text>
               </View>
             </View>
             <View style={styles.actionArrowContainer}>
-              <Text style={styles.actionArrow}>›</Text>
+              <ArrowRight2 size={20} color="#5B7FFF" variant="Bold" />
+            </View>
+          </TouchableOpacity>
+
+          {/* PAGAR MI CRÉDITO */}
+          <TouchableOpacity
+            style={styles.actionItem}
+            activeOpacity={0.7}
+            onPress={() => router.push("/(tabs)/Credit/pay_credit")}
+          >
+            <View style={styles.actionLeft}>
+              <View style={[styles.actionIcon, { backgroundColor: "#E8F5E9" }]}>
+                <Wallet size={24} color="#4CAF50" variant="Bold" />
+              </View>
+              <View style={styles.actionTextContainer}>
+                <Text style={styles.actionTitle}>Pagar mi crédito</Text>
+                <Text style={styles.actionSubtitle}>
+                  Realiza un abono o paga tu cuota
+                </Text>
+              </View>
+            </View>
+            <View style={styles.actionArrowContainer}>
+              <ArrowRight2 size={20} color="#5B7FFF" variant="Bold" />
             </View>
           </TouchableOpacity>
 
           {/* HISTORIAL DE CRÉDITOS */}
-          <TouchableOpacity 
-            style={styles.actionItem} 
+          <TouchableOpacity
+            style={styles.actionItem}
             activeOpacity={0.7}
-            onPress={() => router.push('/(tabs)/Credit/credit_history')}
+            onPress={() => router.push("/(tabs)/Credit/credit_history")}
           >
             <View style={styles.actionLeft}>
-              <View style={[styles.actionIcon, { backgroundColor: '#F3E5F5' }]}>
-                <Text style={styles.actionEmoji}>📊</Text>
+              <View style={[styles.actionIcon, { backgroundColor: "#F3E5F5" }]}>
+                <ChartSquare size={24} color="#9C27B0" variant="Bold" />
               </View>
               <View style={styles.actionTextContainer}>
                 <Text style={styles.actionTitle}>Historial de créditos</Text>
-                <Text style={styles.actionSubtitle}>Consulta tus movimientos</Text>
+                <Text style={styles.actionSubtitle}>
+                  Consulta tus movimientos
+                </Text>
               </View>
             </View>
             <View style={styles.actionArrowContainer}>
-              <Text style={styles.actionArrow}>›</Text>
+              <ArrowRight2 size={20} color="#5B7FFF" variant="Bold" />
             </View>
           </TouchableOpacity>
 
-          {/* AUMENTAR CUPO */}
-          <TouchableOpacity 
-            style={styles.actionItem} 
+          {/* RETIRAR CUPO */}
+          <TouchableOpacity
+            style={styles.actionItem}
             activeOpacity={0.7}
-            onPress={() => router.push('/(tabs)/Credit/increase_quota')}
+            onPress={() => router.push("/(tabs)/withdrawals")}
           >
             <View style={styles.actionLeft}>
-              <View style={[styles.actionIcon, { backgroundColor: '#FFF3E0' }]}>
-                <Text style={styles.actionEmoji}>🎁</Text>
+              <View style={[styles.actionIcon, { backgroundColor: "#FFF3E0" }]}>
+                <Gift size={24} color="#FF9800" variant="Bold" />
               </View>
               <View style={styles.actionTextContainer}>
-                <Text style={styles.actionTitle}>Aumentar cupo</Text>
-                <Text style={styles.actionSubtitle}>Solicita más crédito disponible</Text>
+                <Text style={styles.actionTitle}>Retirar Dinero</Text>
+                <Text style={styles.actionSubtitle}>
+                  retira el dinero disponible en tu cupo
+                </Text>
               </View>
             </View>
+
             <View style={styles.actionArrowContainer}>
-              <Text style={styles.actionArrow}>›</Text>
+              <ArrowRight2 size={20} color="#5B7FFF" variant="Bold" />
             </View>
           </TouchableOpacity>
 
           {/* SOPORTE Y AYUDA */}
-          <TouchableOpacity 
-            style={styles.actionItem} 
+          <TouchableOpacity
+            style={styles.actionItem}
             activeOpacity={0.7}
-            onPress={() => router.push('/(tabs)/Help')}
+            onPress={() => router.push("/(tabs)/Help")}
           >
             <View style={styles.actionLeft}>
-              <View style={[styles.actionIcon, { backgroundColor: '#E1F5FE' }]}>
-                <Text style={styles.actionEmoji}>💬</Text>
+              <View style={[styles.actionIcon, { backgroundColor: "#E1F5FE" }]}>
+                <MessageQuestion size={24} color="#03A9F4" variant="Bold" />
               </View>
               <View style={styles.actionTextContainer}>
                 <Text style={styles.actionTitle}>Soporte y ayuda</Text>
@@ -296,27 +627,33 @@ export default function DashboardScreen() {
               </View>
             </View>
             <View style={styles.actionArrowContainer}>
-              <Text style={styles.actionArrow}>›</Text>
+              <ArrowRight2 size={20} color="#5B7FFF" variant="Bold" />
             </View>
           </TouchableOpacity>
         </View>
 
         {/* Botón de cerrar sesión mejorado */}
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.logoutButton}
-          onPress={() => router.push('/')}
+          onPress={() => router.push("/")}
           activeOpacity={0.7}
         >
-          <Text style={styles.logoutIcon}>🚪</Text>
+          <Logout size={20} color="#FF5252" variant="Bold" />
           <Text style={styles.logoutText}>Cerrar Sesión</Text>
         </TouchableOpacity>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>Biyuyo © 2025</Text>
-          <Text style={styles.footerSubtext}>Desarrollado por Ingenio Soluciones Ti</Text>
-          <Text style={styles.footerSubtext}>Tu aliado financiero de confianza</Text>
+          <Text style={styles.footerSubtext}>
+            Desarrollado por Ingenio Soluciones Ti
+          </Text>
+          <Text style={styles.footerSubtext}>
+            Tu aliado financiero de confianza
+          </Text>
         </View>
       </ScrollView>
+
+      <FloatingBottomMenu />
     </View>
   );
 }
@@ -350,10 +687,10 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(16),
   },
   logoImage: {
-    width: scale(140),
-    height: verticalScale(45),
-    maxWidth: 180,
-    maxHeight: 60,
+    width: scale(200),
+    height: verticalScale(65),
+    maxWidth: 250,
+    maxHeight: 80,
   },
   headerBottom: {
     flexDirection: "row",
@@ -379,6 +716,75 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: scale(12),
   },
+  // Contenedor que agrupa los números y el círculo
+  keyContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(8),
+    position: "relative",
+  },
+  // Estilos para el botón de clave dinámica
+  dynamicKeyButton: {
+    position: "relative",
+    width: moderateScale(56),
+    height: moderateScale(56),
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  circularProgressContent: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  keyBadge: {
+    position: "absolute",
+    bottom: -2,
+    right: -2,
+    backgroundColor: "#5B7FFF",
+    paddingHorizontal: scale(6),
+    paddingVertical: verticalScale(2),
+    borderRadius: moderateScale(8),
+    borderWidth: 2,
+    borderColor: "white",
+  },
+  keyBadgeText: {
+    fontSize: scaleFont(9),
+    fontWeight: "bold",
+    color: "white",
+  },
+  // Estilos para los números expandibles
+  keyNumbersRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(3),
+  },
+  miniDigitBox: {
+    width: moderateScale(20),
+    height: moderateScale(26),
+    backgroundColor: "white",
+    borderRadius: moderateScale(6),
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: "#5B7FFF",
+    shadowColor: "#5B7FFF",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  miniDigitText: {
+    fontSize: scaleFont(12),
+    fontWeight: "bold",
+    color: "#5B7FFF",
+  },
   notificationButton: {
     width: moderateScale(44),
     height: moderateScale(44),
@@ -387,9 +793,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
-  },
-  notificationIcon: {
-    fontSize: scaleFont(20),
   },
   notificationBadge: {
     position: "absolute",
@@ -409,51 +812,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "white",
   },
-  profileButton: {
-    shadowColor: "#5B7FFF",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  profileAvatarContainer: {
-    position: "relative",
-  },
-  profileAvatar: {
-    width: moderateScale(46),
-    height: moderateScale(46),
-    borderRadius: moderateScale(23),
-    backgroundColor: "#5B7FFF",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 3,
-    borderColor: "white",
-  },
-  profileAvatarText: {
-    fontSize: scaleFont(18),
-    fontWeight: "bold",
-    color: "white",
-  },
-  profileStatusDot: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    width: moderateScale(14),
-    height: moderateScale(14),
-    borderRadius: moderateScale(7),
-    backgroundColor: "#4CAF50",
-    borderWidth: 3,
-    borderColor: "white",
-  },
   content: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: scale(16),
-    paddingBottom: verticalScale(20),
+    paddingBottom: verticalScale(120),
   },
   mainCard: {
     marginTop: verticalScale(20),
@@ -518,9 +882,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  cardIconText: {
-    fontSize: scaleFont(24),
-  },
   amountContainer: {
     marginBottom: verticalScale(20),
   },
@@ -580,22 +941,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
+    gap: scale(6),
   },
   primaryButtonText: {
     color: "#1a1a1a",
     fontSize: scaleFont(15),
     fontWeight: "bold",
-    marginRight: scale(6),
-  },
-  buttonArrow: {
-    color: "#1a1a1a",
-    fontSize: scaleFont(18),
-    fontWeight: "bold",
   },
   infoGrid: {
     flexDirection: "row",
     gap: scale(12),
-    marginBottom: verticalScale(20),
+    marginBottom: verticalScale(16),
   },
   infoCard: {
     flex: 1,
@@ -618,9 +974,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: verticalScale(10),
-  },
-  infoIcon: {
-    fontSize: scaleFont(20),
   },
   infoLabel: {
     fontSize: scaleFont(11),
@@ -646,6 +999,7 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: verticalScale(20),
+    marginTop: verticalScale(10),
   },
   sectionTitle: {
     fontSize: scaleFont(18),
@@ -686,9 +1040,6 @@ const styles = StyleSheet.create({
     marginRight: scale(12),
     flexShrink: 0,
   },
-  actionEmoji: {
-    fontSize: scaleFont(22),
-  },
   actionTextContainer: {
     flex: 1,
   },
@@ -712,11 +1063,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexShrink: 0,
   },
-  actionArrow: {
-    fontSize: scaleFont(18),
-    color: "#5B7FFF",
-    fontWeight: "bold",
-  },
   logoutButton: {
     flexDirection: "row",
     backgroundColor: "white",
@@ -737,10 +1083,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 2,
-  },
-  logoutIcon: {
-    fontSize: scaleFont(18),
-    marginRight: scale(8),
+    gap: scale(8),
   },
   logoutText: {
     color: "#FF5252",
@@ -761,5 +1104,72 @@ const styles = StyleSheet.create({
   footerSubtext: {
     fontSize: scaleFont(11),
     color: "#bbb",
+  },
+
+  // ===== SKELETON STYLES =====
+  skeletonLogo: {
+    width: "60%",
+    height: verticalScale(65),
+    backgroundColor: "#E0E0E0",
+    borderRadius: moderateScale(16),
+    alignSelf: "center",
+    marginBottom: verticalScale(16),
+  },
+  skeletonGreeting: {
+    width: "70%",
+    height: verticalScale(24),
+    backgroundColor: "#E0E0E0",
+    borderRadius: moderateScale(8),
+    marginBottom: verticalScale(8),
+  },
+  skeletonSubGreeting: {
+    width: "50%",
+    height: verticalScale(16),
+    backgroundColor: "#E0E0E0",
+    borderRadius: moderateScale(6),
+  },
+  skeletonNotification: {
+    width: moderateScale(44),
+    height: moderateScale(44),
+    backgroundColor: "#E0E0E0",
+    borderRadius: moderateScale(22),
+  },
+  skeletonMainCard: {
+    width: "100%",
+    height: verticalScale(280),
+    backgroundColor: "#E0E0E0",
+    borderRadius: moderateScale(24),
+    marginTop: verticalScale(20),
+    marginBottom: verticalScale(16),
+  },
+  skeletonInfoCard: {
+    flex: 1,
+    height: verticalScale(140),
+    backgroundColor: "#E0E0E0",
+    borderRadius: moderateScale(16),
+  },
+  skeletonSectionTitle: {
+    width: "40%",
+    height: verticalScale(20),
+    backgroundColor: "#E0E0E0",
+    borderRadius: moderateScale(8),
+    marginBottom: verticalScale(14),
+  },
+  skeletonProductsContainer: {
+    flexDirection: "row",
+    gap: scale(12),
+  },
+  skeletonProduct: {
+    width: (width - scale(44)) / 2,
+    height: verticalScale(220),
+    backgroundColor: "#E0E0E0",
+    borderRadius: moderateScale(16),
+  },
+  skeletonAction: {
+    width: "100%",
+    height: verticalScale(72),
+    backgroundColor: "#E0E0E0",
+    borderRadius: moderateScale(16),
+    marginBottom: verticalScale(10),
   },
 });

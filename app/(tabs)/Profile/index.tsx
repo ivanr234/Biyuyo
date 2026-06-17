@@ -1,17 +1,37 @@
+import FloatingBottomMenu from "@/components/Floatingbottommenu";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    Alert,
-    Dimensions,
-    Image,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Dimensions,
+  Image,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+// Importar iconos de Iconsax
+import {
+  ArrowLeft,
+  ArrowRight2,
+  Box,
+  Card,
+  Chart,
+  DocumentText1,
+  Key,
+  Lock,
+  Logout,
+  Notification,
+  Profile2User,
+  Sms,
+  Star1,
+  TickCircle,
+  Trash,
+  Wallet3
+} from 'iconsax-react-native';
 
 const { width, height } = Dimensions.get("window");
 
@@ -54,12 +74,12 @@ export default function ProfileScreen() {
     return `$${amount.toLocaleString('es-CO')}`;
   };
 
-  const handleEditProfile = () => {
-    Alert.alert("Editar Perfil", "Función en desarrollo");
+  const handleMyOrders = () => {
+    router.push('/PiyaloAqui/orders');
   };
 
   const handleChangePassword = () => {
-    Alert.alert("Cambiar Contraseña", "Función en desarrollo");
+    router.push('/Profile/change_password');
   };
 
   const handleNotifications = () => {
@@ -67,11 +87,11 @@ export default function ProfileScreen() {
   };
 
   const handlePrivacy = () => {
-    Alert.alert("Privacidad", "Función en desarrollo");
+    router.push('/PaS/security');
   };
 
   const handleTerms = () => {
-    Alert.alert("Términos y Condiciones", "Función en desarrollo");
+   router.push('/PaS/terms_and_conditions');
   };
 
   const handleDeleteAccount = () => {
@@ -100,7 +120,7 @@ export default function ProfileScreen() {
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <Text style={styles.backIcon}>←</Text>
+          <ArrowLeft size={24} color="#5B7FFF" variant="Bold" />
         </TouchableOpacity>
         
         <View style={styles.headerCenter}>
@@ -128,22 +148,11 @@ export default function ProfileScreen() {
 
         {/* Tarjeta de Perfil */}
         <View style={styles.profileCard}>
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {userData.nombre.split(' ').map(n => n[0]).join('')}
-              </Text>
-            </View>
-            <TouchableOpacity style={styles.avatarEditButton} onPress={handleEditProfile}>
-              <Text style={styles.avatarEditIcon}>📷</Text>
-            </TouchableOpacity>
-          </View>
-
           <Text style={styles.profileName}>{userData.nombre}</Text>
           <Text style={styles.profileEmail}>{userData.email}</Text>
 
           <View style={styles.memberBadge}>
-            <Text style={styles.memberBadgeIcon}>⭐</Text>
+            <Star1 size={16} color="#FFC107" variant="Bold" />
             <Text style={styles.memberBadgeText}>Miembro desde {userData.fechaRegistro}</Text>
           </View>
         </View>
@@ -154,7 +163,7 @@ export default function ProfileScreen() {
           <View style={styles.statsGrid}>
             <View style={styles.statItem}>
               <View style={[styles.statIconContainer, { backgroundColor: '#E3F2FD' }]}>
-                <Text style={styles.statIcon}>💳</Text>
+                <Wallet3 size={24} color="#2196F3" variant="Bold" />
               </View>
               <Text style={styles.statValue}>{formatCurrency(userData.cupoTotal)}</Text>
               <Text style={styles.statLabel}>Cupo Total</Text>
@@ -162,7 +171,7 @@ export default function ProfileScreen() {
 
             <View style={styles.statItem}>
               <View style={[styles.statIconContainer, { backgroundColor: '#FFF3E0' }]}>
-                <Text style={styles.statIcon}>📊</Text>
+                <Chart size={24} color="#FF9800" variant="Bold" />
               </View>
               <Text style={styles.statValue}>{userData.creditosActivos}</Text>
               <Text style={styles.statLabel}>Créditos Activos</Text>
@@ -170,7 +179,7 @@ export default function ProfileScreen() {
 
             <View style={styles.statItem}>
               <View style={[styles.statIconContainer, { backgroundColor: '#E8F5E9' }]}>
-                <Text style={styles.statIcon}>✅</Text>
+                <TickCircle size={24} color="#4CAF50" variant="Bold" />
               </View>
               <Text style={styles.statValue}>{userData.pagosPuntuales}</Text>
               <Text style={styles.statLabel}>Pagos Puntuales</Text>
@@ -184,7 +193,7 @@ export default function ProfileScreen() {
           
           <View style={styles.infoCard}>
             <View style={styles.infoItem}>
-              <Text style={styles.infoIcon}>📧</Text>
+              <Sms size={24} color="#5B7FFF" variant="Bold" />
               <View style={styles.infoTextContainer}>
                 <Text style={styles.infoLabel}>Email</Text>
                 <Text style={styles.infoValue}>{userData.email}</Text>
@@ -194,7 +203,7 @@ export default function ProfileScreen() {
             <View style={styles.infoDivider} />
 
             <View style={styles.infoItem}>
-              <Text style={styles.infoIcon}>📱</Text>
+              <Profile2User size={24} color="#4CAF50" variant="Bold" />
               <View style={styles.infoTextContainer}>
                 <Text style={styles.infoLabel}>Teléfono</Text>
                 <Text style={styles.infoValue}>{userData.telefono}</Text>
@@ -204,7 +213,7 @@ export default function ProfileScreen() {
             <View style={styles.infoDivider} />
 
             <View style={styles.infoItem}>
-              <Text style={styles.infoIcon}>🆔</Text>
+              <Card size={24} color="#FF9800" variant="Bold" />
               <View style={styles.infoTextContainer}>
                 <Text style={styles.infoLabel}>Cédula</Text>
                 <Text style={styles.infoValue}>{userData.cedula}</Text>
@@ -213,23 +222,31 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Pedidos</Text>
+
+       <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={handleMyOrders}
+            activeOpacity={0.7}
+          >
+            <View style={styles.menuLeft}>
+              <View style={[styles.menuIcon, { backgroundColor: '#F3E5F5' }]}>
+                <Box size={20} color="#9C27B0" variant="Bold" />
+              </View>
+              <Text style={styles.menuText}>Mis pedidos</Text>
+            </View>
+            <ArrowRight2 size={20} color="#5B7FFF" variant="Bold" />
+          </TouchableOpacity>
+          </View>
+
+
         {/* Configuración de Cuenta */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Configuración</Text>
           
-          <TouchableOpacity 
-            style={styles.menuItem}
-            onPress={handleEditProfile}
-            activeOpacity={0.7}
-          >
-            <View style={styles.menuLeft}>
-              <View style={[styles.menuIcon, { backgroundColor: '#E3F2FD' }]}>
-                <Text style={styles.menuEmoji}>✏</Text>
-              </View>
-              <Text style={styles.menuText}>Editar perfil</Text>
-            </View>
-            <Text style={styles.menuArrow}>›</Text>
-          </TouchableOpacity>
+          
+          
 
           <TouchableOpacity 
             style={styles.menuItem}
@@ -238,11 +255,11 @@ export default function ProfileScreen() {
           >
             <View style={styles.menuLeft}>
               <View style={[styles.menuIcon, { backgroundColor: '#FFF3E0' }]}>
-                <Text style={styles.menuEmoji}>🔑</Text>
+                <Key size={20} color="#FF9800" variant="Bold" />
               </View>
               <Text style={styles.menuText}>Cambiar contraseña</Text>
             </View>
-            <Text style={styles.menuArrow}>›</Text>
+            <ArrowRight2 size={20} color="#5B7FFF" variant="Bold" />
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -252,7 +269,7 @@ export default function ProfileScreen() {
           >
             <View style={styles.menuLeft}>
               <View style={[styles.menuIcon, { backgroundColor: '#E8F5E9' }]}>
-                <Text style={styles.menuEmoji}>🔔</Text>
+                <Notification size={20} color="#4CAF50" variant="Bold" />
               </View>
               <Text style={styles.menuText}>Notificaciones</Text>
             </View>
@@ -275,11 +292,11 @@ export default function ProfileScreen() {
           >
             <View style={styles.menuLeft}>
               <View style={[styles.menuIcon, { backgroundColor: '#F3E5F5' }]}>
-                <Text style={styles.menuEmoji}>🔒</Text>
+                <Lock size={20} color="#9C27B0" variant="Bold" />
               </View>
-              <Text style={styles.menuText}>Privacidad</Text>
+              <Text style={styles.menuText}>Seguridad</Text>
             </View>
-            <Text style={styles.menuArrow}>›</Text>
+            <ArrowRight2 size={20} color="#5B7FFF" variant="Bold" />
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -289,17 +306,17 @@ export default function ProfileScreen() {
           >
             <View style={styles.menuLeft}>
               <View style={[styles.menuIcon, { backgroundColor: '#E1F5FE' }]}>
-                <Text style={styles.menuEmoji}>📄</Text>
+                <DocumentText1 size={20} color="#00BCD4" variant="Bold" />
               </View>
               <Text style={styles.menuText}>Términos y condiciones</Text>
             </View>
-            <Text style={styles.menuArrow}>›</Text>
+            <ArrowRight2 size={20} color="#5B7FFF" variant="Bold" />
           </TouchableOpacity>
         </View>
 
         {/* Zona de Peligro */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Zona de Peligro</Text>
+          <Text style={styles.sectionTitle}>Eliminacion de cuenta </Text>
           
           <TouchableOpacity 
             style={styles.dangerItem}
@@ -308,11 +325,11 @@ export default function ProfileScreen() {
           >
             <View style={styles.menuLeft}>
               <View style={[styles.menuIcon, { backgroundColor: '#FFE5E5' }]}>
-                <Text style={styles.menuEmoji}>🗑</Text>
+                <Trash size={20} color="#FF5252" variant="Bold" />
               </View>
               <Text style={[styles.menuText, { color: '#FF5252' }]}>Eliminar cuenta</Text>
             </View>
-            <Text style={[styles.menuArrow, { color: '#FF5252' }]}>›</Text>
+            <ArrowRight2 size={20} color="#FF5252" variant="Bold" />
           </TouchableOpacity>
         </View>
 
@@ -322,16 +339,19 @@ export default function ProfileScreen() {
           onPress={() => router.push('/')}
           activeOpacity={0.8}
         >
-          <Text style={styles.logoutIcon}>🚪</Text>
+          <Logout size={20} color="white" variant="Bold" />
           <Text style={styles.logoutText}>Cerrar Sesión</Text>
         </TouchableOpacity>
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Biyuyo v1.0.0</Text>
-          <Text style={styles.footerSubtext}>© 2025 Todos los derechos reservados</Text>
+          <Text style={styles.footerText}>Biyuyo © 2025</Text>
+          <Text style={styles.footerSubtext}>Desarrollado por Ingenio Soluciones Ti</Text>
+          <Text style={styles.footerSubtext}>Tu aliado financiero de confianza</Text>
         </View>
       </ScrollView>
+      
+      <FloatingBottomMenu />
     </View>
   );
 }
@@ -368,11 +388,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  backIcon: {
-    fontSize: scaleFont(24),
-    color: "#5B7FFF",
-    fontWeight: "bold",
-  },
   headerCenter: {
     flex: 1,
     alignItems: "center",
@@ -404,7 +419,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: verticalScale(30),
+    paddingBottom: verticalScale(120),
   },
   headerSpacer: {
     height: verticalScale(20),
@@ -460,14 +475,19 @@ const styles = StyleSheet.create({
     width: moderateScale(36),
     height: moderateScale(36),
     borderRadius: moderateScale(18),
-    backgroundColor: "#FFD700",
+    backgroundColor: "#FF9800",
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 3,
     borderColor: "white",
-  },
-  avatarEditIcon: {
-    fontSize: scaleFont(16),
+    shadowColor: "#FF9800",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 4,
   },
   profileName: {
     fontSize: scaleFont(24),
@@ -490,10 +510,7 @@ const styles = StyleSheet.create({
     borderRadius: moderateScale(20),
     borderWidth: 1,
     borderColor: "rgba(255, 215, 0, 0.3)",
-  },
-  memberBadgeIcon: {
-    fontSize: scaleFont(16),
-    marginRight: scale(6),
+    gap: scale(6),
   },
   memberBadgeText: {
     fontSize: scaleFont(12),
@@ -539,9 +556,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: verticalScale(8),
   },
-  statIcon: {
-    fontSize: scaleFont(24),
-  },
   statValue: {
     fontSize: scaleFont(16),
     fontWeight: "bold",
@@ -585,10 +599,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: verticalScale(8),
-  },
-  infoIcon: {
-    fontSize: scaleFont(24),
-    marginRight: scale(14),
+    gap: scale(14),
   },
   infoTextContainer: {
     flex: 1,
@@ -641,18 +652,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: scale(12),
   },
-  menuEmoji: {
-    fontSize: scaleFont(20),
-  },
   menuText: {
     fontSize: scaleFont(15),
     fontWeight: "600",
     color: "#1a1a1a",
-  },
-  menuArrow: {
-    fontSize: scaleFont(24),
-    color: "#5B7FFF",
-    fontWeight: "bold",
   },
   toggleContainer: {
     marginLeft: scale(10),
@@ -713,10 +716,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
-  },
-  logoutIcon: {
-    fontSize: scaleFont(20),
-    marginRight: scale(10),
+    gap: scale(10),
   },
   logoutText: {
     color: "white",
@@ -728,12 +728,13 @@ const styles = StyleSheet.create({
   footer: {
     alignItems: "center",
     paddingVertical: verticalScale(24),
+    paddingTop: verticalScale(30),
   },
   footerText: {
     fontSize: scaleFont(12),
     color: "#999",
     fontWeight: "600",
-    marginBottom: verticalScale(4),
+    marginBottom: verticalScale(3),
   },
   footerSubtext: {
     fontSize: scaleFont(11),

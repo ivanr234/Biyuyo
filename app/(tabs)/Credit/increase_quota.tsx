@@ -1,18 +1,37 @@
+import FloatingBottomMenu from "@/components/Floatingbottommenu";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    Alert,
-    Dimensions,
-    Image,
-    Platform,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Dimensions,
+  Image,
+  Platform,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+// Importar iconos de Iconsax
+import {
+  ArrowLeft,
+  ArrowRight2,
+  Book,
+  Briefcase,
+  Cards,
+  Clock,
+  DocumentText,
+  Home,
+  Lamp,
+  Lock,
+  MessageText,
+  TickCircle,
+  TrendUp,
+  Wallet,
+  Warning2,
+} from 'iconsax-react-native';
 
 const { width, height } = Dimensions.get("window");
 
@@ -83,11 +102,36 @@ export default function IncreaseQuotaScreen() {
   };
 
   const motivosAumento = [
-    { id: "negocio", nombre: "Negocio propio", icon: "💼", descripcion: "Expandir mi negocio" },
-    { id: "emergencia", nombre: "Emergencia", icon: "🚨", descripcion: "Situación imprevista" },
-    { id: "educacion", nombre: "Educación", icon: "📚", descripcion: "Estudios o capacitación" },
-    { id: "mejoras", nombre: "Mejoras hogar", icon: "🏠", descripcion: "Arreglos o compras" },
-    { id: "otro", nombre: "Otro motivo", icon: "📝", descripcion: "Especificar motivo" },
+    { 
+      id: "negocio", 
+      nombre: "Negocio propio", 
+      icon: <Briefcase size={20} color="#5B7FFF" variant="Bold" />,
+      descripcion: "Expandir mi negocio" 
+    },
+    { 
+      id: "emergencia", 
+      nombre: "Emergencia", 
+      icon: <Warning2 size={20} color="#FF5252" variant="Bold" />,
+      descripcion: "Situación imprevista" 
+    },
+    { 
+      id: "educacion", 
+      nombre: "Educación", 
+      icon: <Book size={20} color="#FF9800" variant="Bold" />,
+      descripcion: "Estudios o capacitación" 
+    },
+    { 
+      id: "mejoras", 
+      nombre: "Mejoras hogar", 
+      icon: <Home size={20} color="#4CAF50" variant="Bold" />,
+      descripcion: "Arreglos o compras" 
+    },
+    { 
+      id: "otro", 
+      nombre: "Otro motivo", 
+      icon: <DocumentText size={20} color="#9C27B0" variant="Bold" />,
+      descripcion: "Especificar motivo" 
+    },
   ];
 
   const montosRapidos = [500000, 1000000, 2000000, 3000000];
@@ -105,7 +149,7 @@ export default function IncreaseQuotaScreen() {
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <Text style={styles.backIcon}>←</Text>
+          <ArrowLeft size={24} color="#5B7FFF" variant="Bold" />
         </TouchableOpacity>
         
         <View style={styles.headerCenter}>
@@ -133,7 +177,7 @@ export default function IncreaseQuotaScreen() {
         <View style={styles.currentStatusCard}>
           <View style={styles.statusHeader}>
             <View style={styles.statusIconContainer}>
-              <Text style={styles.statusIcon}>💳</Text>
+              <Cards size={24} color="#2196F3" variant="Bold" />
             </View>
             <Text style={styles.statusTitle}>Tu Cupo Actual</Text>
           </View>
@@ -150,7 +194,10 @@ export default function IncreaseQuotaScreen() {
               </Text>
             </View>
             <View style={styles.statusRow}>
-              <Text style={styles.statusLabel}>Máximo elegible</Text>
+              <View style={styles.statusLabelWithIcon}>
+                <TrendUp size={14} color="#5B7FFF" variant="Bold" />
+                <Text style={styles.statusLabel}>Máximo elegible</Text>
+              </View>
               <Text style={[styles.statusValue, { color: '#5B7FFF' }]}>
                 {formatCurrency(cupoMaximoElegible)}
               </Text>
@@ -220,7 +267,7 @@ export default function IncreaseQuotaScreen() {
           <View style={styles.formGroup}>
             <Text style={styles.formLabel}>Tu ingreso mensual</Text>
             <View style={styles.inputContainer}>
-              <Text style={styles.inputIcon}>💰</Text>
+              <Wallet size={20} color="#5B7FFF" variant="Bold" />
               <TextInput
                 style={styles.textInput}
                 value={ingresoMensual}
@@ -231,9 +278,12 @@ export default function IncreaseQuotaScreen() {
                 maxLength={10}
               />
             </View>
-            <Text style={styles.inputHint}>
-              💡 Un ingreso estable aumenta tus posibilidades de aprobación
-            </Text>
+            <View style={styles.inputHintContainer}>
+              <Lamp size={14} color="#FFC107" variant="Bold" />
+              <Text style={styles.inputHint}>
+                Un ingreso estable aumenta tus posibilidades de aprobación
+              </Text>
+            </View>
           </View>
 
           {/* Motivo de Solicitud */}
@@ -255,7 +305,7 @@ export default function IncreaseQuotaScreen() {
                       styles.reasonIcon,
                       selectedReason === motivo.id && styles.reasonIconSelected
                     ]}>
-                      <Text style={styles.reasonEmoji}>{motivo.icon}</Text>
+                      {motivo.icon}
                     </View>
                     <View style={styles.reasonTextContainer}>
                       <Text style={[
@@ -283,7 +333,10 @@ export default function IncreaseQuotaScreen() {
           {/* Detalle adicional si es "otro" */}
           {selectedReason === "otro" && (
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Describe tu motivo</Text>
+              <View style={styles.formLabelWithIcon}>
+                <MessageText size={16} color="#1a1a1a" variant="Bold" />
+                <Text style={styles.formLabel}>Describe tu motivo</Text>
+              </View>
               <TextInput
                 style={styles.textAreaInput}
                 value={motivoSolicitud}
@@ -301,7 +354,7 @@ export default function IncreaseQuotaScreen() {
         {/* Información de Proceso */}
         <View style={styles.processCard}>
           <View style={styles.processHeader}>
-            <Text style={styles.processIcon}>⏱️</Text>
+            <Clock size={24} color="#5B7FFF" variant="Bold" />
             <Text style={styles.processTitle}>Proceso de aprobación</Text>
           </View>
           <View style={styles.processSteps}>
@@ -337,12 +390,27 @@ export default function IncreaseQuotaScreen() {
 
         {/* Consejos */}
         <View style={styles.tipsCard}>
-          <Text style={styles.tipsTitle}>💡 Consejos para aprobar tu solicitud</Text>
+          <View style={styles.tipsHeader}>
+            <Lamp size={20} color="#FFC107" variant="Bold" />
+            <Text style={styles.tipsTitle}>Consejos para aprobar tu solicitud</Text>
+          </View>
           <View style={styles.tipsList}>
-            <Text style={styles.tipItem}>✓ Mantén tus pagos al día</Text>
-            <Text style={styles.tipItem}>✓ Proporciona información verídica</Text>
-            <Text style={styles.tipItem}>✓ Usa responsablemente tu cupo actual</Text>
-            <Text style={styles.tipItem}>✓ Actualiza tus datos de contacto</Text>
+            <View style={styles.tipItemContainer}>
+              <TickCircle size={16} color="#4CAF50" variant="Bold" />
+              <Text style={styles.tipItem}>Mantén tus pagos al día</Text>
+            </View>
+            <View style={styles.tipItemContainer}>
+              <TickCircle size={16} color="#4CAF50" variant="Bold" />
+              <Text style={styles.tipItem}>Proporciona información verídica</Text>
+            </View>
+            <View style={styles.tipItemContainer}>
+              <TickCircle size={16} color="#4CAF50" variant="Bold" />
+              <Text style={styles.tipItem}>Usa responsablemente tu cupo actual</Text>
+            </View>
+            <View style={styles.tipItemContainer}>
+              <TickCircle size={16} color="#4CAF50" variant="Bold" />
+              <Text style={styles.tipItem}>Actualiza tus datos de contacto</Text>
+            </View>
           </View>
         </View>
 
@@ -357,16 +425,25 @@ export default function IncreaseQuotaScreen() {
           disabled={!montoSolicitado || !ingresoMensual || !selectedReason}
         >
           <Text style={styles.submitButtonText}>Enviar Solicitud</Text>
-          <Text style={styles.submitButtonArrow}>→</Text>
+          <ArrowRight2 size={20} color="white" variant="Bold" />
         </TouchableOpacity>
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            🔒 Tu información está protegida y cifrada
+        {/* Footer de seguridad */}
+        <View style={styles.securityFooter}>
+          <Lock size={14} color="#999" variant="Bold" />
+          <Text style={styles.securityFooterText}>
+            Tu información está protegida y cifrada
           </Text>
         </View>
+
+        {/* Footer estándar */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Biyuyo © 2025</Text>
+          <Text style={styles.footerSubtext}>Desarrollado por Ingenio Soluciones Ti</Text>
+          <Text style={styles.footerSubtext}>Tu aliado financiero de confianza</Text>
+        </View>
       </ScrollView>
+      <FloatingBottomMenu />
     </View>
   );
 }
@@ -402,11 +479,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8F9FD",
     justifyContent: "center",
     alignItems: "center",
-  },
-  backIcon: {
-    fontSize: scaleFont(24),
-    color: "#5B7FFF",
-    fontWeight: "bold",
   },
   headerCenter: {
     flex: 1,
@@ -447,7 +519,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: scale(20),
     paddingTop: verticalScale(20),
-    paddingBottom: verticalScale(30),
+    paddingBottom: verticalScale(120),
   },
 
   // Current Status Card
@@ -481,9 +553,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginRight: scale(12),
   },
-  statusIcon: {
-    fontSize: scaleFont(24),
-  },
   statusTitle: {
     fontSize: scaleFont(18),
     fontWeight: "bold",
@@ -497,6 +566,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  statusLabelWithIcon: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(6),
   },
   statusLabel: {
     fontSize: scaleFont(13),
@@ -549,6 +623,12 @@ const styles = StyleSheet.create({
     fontSize: scaleFont(14),
     fontWeight: "700",
     color: "#1a1a1a",
+    marginBottom: verticalScale(12),
+  },
+  formLabelWithIcon: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(8),
     marginBottom: verticalScale(12),
   },
 
@@ -649,10 +729,7 @@ const styles = StyleSheet.create({
     elevation: 2,
     borderWidth: 1,
     borderColor: "#f0f0f0",
-  },
-  inputIcon: {
-    fontSize: scaleFont(20),
-    marginRight: scale(10),
+    gap: scale(10),
   },
   textInput: {
     flex: 1,
@@ -660,11 +737,17 @@ const styles = StyleSheet.create({
     color: "#1a1a1a",
     padding: 0,
   },
+  inputHintContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(6),
+    marginTop: verticalScale(8),
+  },
   inputHint: {
     fontSize: scaleFont(12),
     color: "#999",
-    marginTop: verticalScale(8),
     fontWeight: "500",
+    flex: 1,
   },
   textAreaInput: {
     backgroundColor: "white",
@@ -728,9 +811,6 @@ const styles = StyleSheet.create({
   reasonIconSelected: {
     backgroundColor: "white",
   },
-  reasonEmoji: {
-    fontSize: scaleFont(20),
-  },
   reasonTextContainer: {
     flex: 1,
   },
@@ -780,10 +860,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: verticalScale(16),
-  },
-  processIcon: {
-    fontSize: scaleFont(24),
-    marginRight: scale(10),
+    gap: scale(10),
   },
   processTitle: {
     fontSize: scaleFont(16),
@@ -835,19 +912,30 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255, 215, 0, 0.3)",
   },
+  tipsHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(8),
+    marginBottom: verticalScale(12),
+  },
   tipsTitle: {
     fontSize: scaleFont(15),
     fontWeight: "bold",
     color: "#1a1a1a",
-    marginBottom: verticalScale(12),
   },
   tipsList: {
     gap: verticalScale(8),
+  },
+  tipItemContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: scale(8),
   },
   tipItem: {
     fontSize: scaleFont(13),
     color: "#666",
     fontWeight: "500",
+    flex: 1,
   },
 
   // Submit Button
@@ -867,6 +955,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 8,
     marginBottom: verticalScale(20),
+    gap: scale(8),
   },
   submitButtonDisabled: {
     backgroundColor: "#ccc",
@@ -877,23 +966,38 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: scaleFont(17),
     fontWeight: "bold",
-    marginRight: scale(8),
-  },
-  submitButtonArrow: {
-    color: "white",
-    fontSize: scaleFont(20),
-    fontWeight: "bold",
   },
 
-  // Footer
+  // Security Footer
+  securityFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: verticalScale(16),
+    gap: scale(8),
+    marginBottom: verticalScale(24),
+  },
+  securityFooterText: {
+    fontSize: scaleFont(12),
+    color: "#999",
+    fontWeight: "600",
+    textAlign: "center",
+  },
+
+  // Footer estándar
   footer: {
     alignItems: "center",
-    paddingVertical: verticalScale(16),
+    paddingVertical: verticalScale(20),
+    paddingBottom: verticalScale(30),
   },
   footerText: {
     fontSize: scaleFont(12),
     color: "#999",
     fontWeight: "600",
-    textAlign: "center",
+    marginBottom: verticalScale(3),
+  },
+  footerSubtext: {
+    fontSize: scaleFont(11),
+    color: "#bbb",
   },
 });
